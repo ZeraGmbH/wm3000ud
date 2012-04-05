@@ -1159,8 +1159,8 @@ const char* cWM3000uServer::mControlerMemUpdate(bl_cmdcode blwriteCmd,char* s)
 		    for (i = 0; i < 4; i++)
 			dest[i ^ 1] = blInput[pos+1+i]; // little endian ... big endian
 		    dest[i] = blInput[pos+1+i];
-                    int MemAdress = 0;
-                    int MemOffset;
+                    quint32 MemAdress = 0;
+                    quint32 MemOffset;
 		    QByteArray MemByteArray;
 		    IntelHexData.GetMemoryBlock( BootloaderInfo.MemPageSize, MemAdress, MemByteArray, MemOffset);
 		    while ( (MemByteArray.count()) && !(execError) ) // solange wir noch daten aus hexfile bekommen
