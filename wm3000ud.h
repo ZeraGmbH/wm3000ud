@@ -97,8 +97,8 @@ struct bl_cmd {
 enum enConfFlags { blAutoIncr = 1, blReadCommandsAvail = 2};
 
 struct blInfo {
-    int ConfigurationFlags;
-    int MemPageSize;
+    ulong ConfigurationFlags;
+    quint32 MemPageSize;
     uchar AdressPointerSize;
 };
 
