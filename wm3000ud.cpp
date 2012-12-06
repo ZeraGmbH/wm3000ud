@@ -136,6 +136,10 @@ cWM3000uServer::cWM3000uServer()
     I2CMasterAdr = I2CMasterAdress; //default 0x20
     I2CSlaveAdr = I2CSlaveAdress; // default  0x21
     DateTime = QDateTime(QDate(8000,12,24));
+
+    m_sFPGADeviceNode = FPGADeviceNode;
+    wait4AtmelRunning();
+
     sSerialNumber = mGetSerialNumber();
     sDeviceVersion = mGetDeviceVersion();
     
@@ -1498,15 +1502,67 @@ const char* cWM3000uServer::mGetCValueCNodeName() {
 }
 
 
-bool cWM3000uServer::EEPromAccessEnable() { 
+bool cWM3000uServer::EEPromAccessEnable()
+{
     char PAR[1];
     struct hw_cmd CMD = { cmdcode: hwGetFlashWriteAccess, device: 0, par: PAR, plen: 0,cmdlen: 0,cmddata: 0, RM:0 };
-    if ( (I2CWriteCommand(&CMD) == 2) && (CMD.RM == 0)) {
+    if ( (I2CWriteCommand(&CMD) == 2) && (CMD.RM == 0))
+    {
         quint8 answ[2];
-	return ( (I2CReadOutput(answ,2) == 2) && (answ[0]) );
+        return ( (I2CReadOutput(answ,2) == 2) && (answ[0]) );
     }
     return(false);
 }
+
+
+bool cWM3000uServer::isAtmelRunning()
+{
+    int fd;
+    if ( (fd = open(m_sFPGADeviceNode.latin1(),O_RDWR)) < 0 )
+    {
+        if (DEBUG1)  syslog(LOG_ERR,"error opening fpga device: %s\n",m_sFPGADeviceNode.latin1());
+    return false;
+    }
+
+   else
+    {
+        ulong pcbTestReg;
+        int r;
+        if ( (r = lseek(fd,0xfff,0)) < 0 )
+        {
+            if  (DEBUG1)  syslog(LOG_ERR,"error positioning fpga device: %s\n",m_sFPGADeviceNode.latin1());
+            return false;
+        }
+        else
+        {
+            if ( (r = read(fd,(char*) &pcbTestReg,len)) <0 )
+            {
+                if (DEBUG1)  syslog(LOG_ERR,"error reading fpga device: %s\n",m_sFPGADeviceNode.latin1());
+                return false;
+            }
+            else
+                return ((pcbTestReg & 1) > 0);
+        }
+    }
+}
+
+
+void cWM3000uServer::wait4AtmelRunning()
+{
+    int i;
+    for (i=0; i<100; i++)
+    {
+        if (isAtmelRunning())
+            break;
+        msleep(100);
+    }
+
+    if (DEBUG1)
+        if (i==100)
+            syslog(LOG_ERR,"atmel not running\n");
+
+}
+
 
 
 void cWM3000uServer::AddChannelClient(QString& s) { // fügt einen client hinzu nach  open
