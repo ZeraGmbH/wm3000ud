@@ -20,6 +20,7 @@
 // den eingang von der widerstandsteilerkette abkoppelt
 // es gibt jetzt detailiertere fehlermeldungen wenn im xml justage import file fehler auftreten auf der schnittstelle
 // beim lesen der justagedaten aus dem flash werden auf der hinteren stelle der versionsnummern für lca und ctrl änderungen zugelassen ohne dass es zu einer meldung nicht justiert oder so führt.
+// version V1.07 ab dem 24.04.2012 doctype beim schreiben xml datei korrigiert
 
 #ifndef WMGOBAL_H
 #define WMGLOBAL_H
@@ -27,7 +28,7 @@
 #define CheckSumOffset 56
 #define LeiterkartenName "wm3000u"
 #define ServerBasisName "wm3000ud"
-#define ServerVersion "V1.06"
+#define ServerVersion "V1.07"
 #define InpBufSize 4096
 
 // wenn WMDEBUG -> kein fork() 

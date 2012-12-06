@@ -793,7 +793,7 @@ const char* cWM3000uServer::mFile2Justdata(char* s) {
 
 
 const char* cWM3000uServer::mJustData2File(char* s) {
-    QDomDocument justdata( "WM3000uAdjustmentData" );
+    QDomDocument justdata( "WM3000UAdjustmentData" );
     
     QDomElement pcbtag = justdata.createElement( "PCB" );
     justdata.appendChild( pcbtag );
