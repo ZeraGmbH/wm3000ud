@@ -1535,7 +1535,7 @@ bool cWM3000uServer::isAtmelRunning()
         }
         else
         {
-            if ( (r = read(fd,(char*) &pcbTestReg,len)) <0 )
+            if ( (r = read(fd,(char*) &pcbTestReg,4)) <0 )
             {
                 if (DEBUG1)  syslog(LOG_ERR,"error reading fpga device: %s\n",m_sFPGADeviceNode.latin1());
                 return false;
@@ -1554,7 +1554,7 @@ void cWM3000uServer::wait4AtmelRunning()
     {
         if (isAtmelRunning())
             break;
-        msleep(100);
+        usleep(100000);
     }
 
     if (DEBUG1)
