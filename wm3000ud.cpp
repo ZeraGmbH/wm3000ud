@@ -1531,11 +1531,13 @@ bool cWM3000uServer::isAtmelRunning()
         if ( (r = lseek(fd,0xffc,0)) < 0 )
         {
             if  (DEBUG1)  syslog(LOG_ERR,"error positioning fpga device: %s\n",m_sFPGADeviceNode.latin1());
+            close(fd);
             return false;
         }
         else
         {
             r = read(fd,(char*) &pcbTestReg,4);
+            close(fd);
             if (DEBUG1)  syslog(LOG_ERR,"reading fpga adr 0xffc =  %d\n", pcbTestReg);
             if (r < 0 )
             {
