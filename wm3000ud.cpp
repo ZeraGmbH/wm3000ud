@@ -1535,7 +1535,9 @@ bool cWM3000uServer::isAtmelRunning()
         }
         else
         {
-            if ( (r = read(fd,(char*) &pcbTestReg,4)) <0 )
+            r = read(fd,(char*) &pcbTestReg,4);
+            if (DEBUG1)  syslog(LOG_ERR,"reading fpga adr 0xfff =  %d\n", pcbTestReg);
+            if (r < 0 )
             {
                 if (DEBUG1)  syslog(LOG_ERR,"error reading fpga device: %s\n",m_sFPGADeviceNode.latin1());
                 return false;
