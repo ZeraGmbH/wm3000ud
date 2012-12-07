@@ -1528,7 +1528,7 @@ bool cWM3000uServer::isAtmelRunning()
     {
         ulong pcbTestReg;
         int r;
-        if ( (r = lseek(fd,0xfff,0)) < 0 )
+        if ( (r = lseek(fd,0xffc,0)) < 0 )
         {
             if  (DEBUG1)  syslog(LOG_ERR,"error positioning fpga device: %s\n",m_sFPGADeviceNode.latin1());
             return false;
@@ -1536,7 +1536,7 @@ bool cWM3000uServer::isAtmelRunning()
         else
         {
             r = read(fd,(char*) &pcbTestReg,4);
-            if (DEBUG1)  syslog(LOG_ERR,"reading fpga adr 0xfff =  %d\n", pcbTestReg);
+            if (DEBUG1)  syslog(LOG_ERR,"reading fpga adr 0xffc =  %d\n", pcbTestReg);
             if (r < 0 )
             {
                 if (DEBUG1)  syslog(LOG_ERR,"error reading fpga device: %s\n",m_sFPGADeviceNode.latin1());
