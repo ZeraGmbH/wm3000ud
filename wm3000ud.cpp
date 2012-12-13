@@ -1515,29 +1515,29 @@ bool cWM3000uServer::EEPromAccessEnable()
 }
 
 
-bool cWM3000uServer::isAtmelRunning(int fd)
+bool cWM3000uServer::isAtmelRunning()
 {
-//    int fd;
-//    if ( (fd = open(m_sFPGADeviceNode.latin1(),O_RDWR)) < 0 )
-//    {
-//        if (DEBUG1)  syslog(LOG_ERR,"error opening fpga device: %s\n",m_sFPGADeviceNode.latin1());
-//    return false;
-//    }
+    int fd;
+    if ( (fd = open(m_sFPGADeviceNode.latin1(),O_RDWR)) < 0 )
+    {
+        if (DEBUG1)  syslog(LOG_ERR,"error opening fpga device: %s\n",m_sFPGADeviceNode.latin1());
+        return false;
+    }
 
-//  else
+    else
     {
         ulong pcbTestReg;
         int r;
         if ( (r = lseek(fd,0xffc,0)) < 0 )
         {
             if  (DEBUG1)  syslog(LOG_ERR,"error positioning fpga device: %s\n",m_sFPGADeviceNode.latin1());
-//            close(fd);
+            close(fd);
             return false;
         }
         else
         {
             r = read(fd,(char*) &pcbTestReg,4);
-//            close(fd);
+            close(fd);
             if (DEBUG1)  syslog(LOG_ERR,"reading fpga adr 0xffc =  %d\n", pcbTestReg);
             if (r < 0 )
             {
@@ -1554,21 +1554,13 @@ bool cWM3000uServer::isAtmelRunning(int fd)
 void cWM3000uServer::wait4AtmelRunning()
 {
     int i;
-    int fd;
-    if ( (fd = open(m_sFPGADeviceNode.latin1(),O_RDWR | O_CLOEXEC)) < 0 )
-    {
-        if (DEBUG1)  syslog(LOG_ERR,"error opening fpga device: %s\n",m_sFPGADeviceNode.latin1());
-        return;
-    }
 
     for (i=0; i<100; i++)
     {
-        if (isAtmelRunning(fd))
+        if (isAtmelRunning())
             break;
         usleep(100000);
     }
-
-    close(fd);
 
     if (DEBUG1)
         if (i==100)
