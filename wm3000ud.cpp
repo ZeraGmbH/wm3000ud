@@ -1555,7 +1555,7 @@ void cWM3000uServer::wait4AtmelRunning()
 {
     int i;
     int fd;
-    if ( (fd = open(m_sFPGADeviceNode.latin1(),O_RDWR)) < 0 )
+    if ( (fd = open(m_sFPGADeviceNode.latin1(),O_RDWR | O_CLOEXEC)) < 0 )
     {
         if (DEBUG1)  syslog(LOG_ERR,"error opening fpga device: %s\n",m_sFPGADeviceNode.latin1());
         return;
