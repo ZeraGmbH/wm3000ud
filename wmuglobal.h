@@ -22,7 +22,8 @@
 // beim lesen der justagedaten aus dem flash werden auf der hinteren stelle der versionsnummern für lca und ctrl änderungen zugelassen ohne dass es zu einer meldung nicht justiert oder so führt.
 // version V1.07 ab dem 24.04.2012 doctype beim schreiben xml datei korrigiert
 
-// version v1.08 einbau einer synchronisation auf atmel toggle bit. hierzu wird das zFPGA1reg device verwendet. auf register mit
+// version vorn erhöht zur unterscheidung alte/neue cpu
+// version v2.08 einbau einer synchronisation auf atmel toggle bit. hierzu wird das zFPGA1reg device verwendet. auf register mit
 // der adresse 0xfff wird in bit 0 die auswertung des atmel toggle bit gesetzt. es wird beim start des pcb servers 10sek.
 // gewartet ob der atmel ins leben kommt. danach wird durchgestartet.
 
@@ -34,7 +35,7 @@
 #define CheckSumOffset 56
 #define LeiterkartenName "wm3000u"
 #define ServerBasisName "wm3000ud"
-#define ServerVersion "V1.07"
+#define ServerVersion "V2.08"
 #define InpBufSize 4096
 
 // wenn WMDEBUG -> kein fork() 
