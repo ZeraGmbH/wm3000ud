@@ -138,7 +138,15 @@ cWM3000uServer::cWM3000uServer()
     DateTime = QDateTime(QDate(8000,12,24));
 
     m_sFPGADeviceNode = FPGADeviceNode;
-    wait4AtmelRunning();
+
+    QFile atmelFile(atmelFlashfilePath);
+    if (atmelFile.exists())
+    {
+        if (programAtmelFlash() && wait4AtmelRunning())
+            atmelFile.remove();
+    }
+    else
+        wait4AtmelRunning();
 
     sSerialNumber = mGetSerialNumber();
     sDeviceVersion = mGetDeviceVersion();
@@ -1551,23 +1559,114 @@ bool cWM3000uServer::isAtmelRunning()
 }
 
 
-void cWM3000uServer::wait4AtmelRunning()
+bool cWM3000uServer::wait4AtmelRunning()
 {
     int i;
+    bool running;
 
     for (i=0; i<100; i++)
     {
-        if (isAtmelRunning())
+        running = isAtmelRunning();
+        if (running)
             break;
         usleep(100000);
     }
 
     if (DEBUG1)
-        if (i==100)
+        if (!running)
             syslog(LOG_ERR,"atmel not running\n");
+
+    return running;
 
 }
 
+
+bool cWM3000uServer::programAtmelFlash()
+{
+    int fd;
+
+    syslog(LOG_INFO,"Starting programming atmel flash\n");
+
+    if ( (fd = open(m_sFPGADeviceNode.latin1(),O_RDWR)) < 0 )
+    {
+        syslog(LOG_ERR,"error opening fpga device: %s\n",m_sFPGADeviceNode.latin1());
+        return false;
+    }
+    else
+    {
+        ulong pcbTestReg;
+        int r;
+        if ( (r = lseek(fd,0xffc,0)) < 0 )
+        {
+            syslog(LOG_ERR,"error positioning fpga device: %s\n",m_sFPGADeviceNode.latin1());
+            syslog(LOG_ERR,"Programming atmel failed\n");
+            close(fd);
+            return false;
+        }
+
+        r = read(fd,(char*) &pcbTestReg,4);
+        syslog(LOG_ERR,"reading fpga adr 0xffc =  %x\n", pcbTestReg);
+        if (r < 0 )
+        {
+            if (DEBUG1)  syslog(LOG_ERR,"error reading fpga device: %s\n",m_sFPGADeviceNode.latin1());
+            syslog(LOG_ERR,"Programming atmel failed\n");
+            return  false;
+        }
+
+        pcbTestReg |=  1 << (atmelResetBit-1); // set bit for atmel reset
+        syslog(LOG_INFO,"writing fpga adr 0xffc =  %x\n", pcbTestReg);
+        r = write(fd, (char*) &pcbTestReg,4);
+
+        if (r < 0 )
+        {
+            syslog(LOG_ERR,"error writing fpga device: %s\n",m_sFPGADeviceNode.latin1());
+            syslog(LOG_ERR,"Programming atmel failed\n");
+            return false;
+        }
+
+        usleep(100); // give atmel some time for reset
+
+        pcbTestReg &=  ~(1 << (atmelResetBit-1)); // reset bit for atmel reset
+        syslog(LOG_INFO,"writing fpga adr 0xffc =  %x\n", pcbTestReg);
+        r = write(fd, (char*) &pcbTestReg,4);
+        close(fd);
+
+        if (r < 0 )
+        {
+            syslog(LOG_ERR,"error writing fpga device: %s\n",m_sFPGADeviceNode.latin1());
+            syslog(LOG_ERR,"Programming atmel failed\n");
+            return false;
+        }
+
+        // atmel is reset
+        usleep(100000); // now we wait for 100ms so bootloader is running definitely
+
+        QByteArray ba;
+        ba = QString(atmelFlashfilePath).toLatin1();
+        mControlerFlashUpdate(ba.data()); // we stop bootloader to run to application here
+        if (Answer == ACKString)
+        {
+            syslog(LOG_INFO,"Programming atmel passed\n");
+
+            // we must restart atmel now
+            ba = QString("").toLatin1();
+            mControlerStartProgram(ba.data());
+            if (Answer != ACKString)
+            {
+                syslog(LOG_ERR,"Restart atmel after programming failed\n");
+                return false;
+            }
+
+            return true;
+        }
+        else
+        {
+            syslog(LOG_ERR,"Writing atmel flash failed\n");
+            syslog(LOG_ERR,"Programming atmel failed\n");
+            return false;
+        }
+    }
+}
 
 
 void cWM3000uServer::AddChannelClient(QString& s) { // fügt einen client hinzu nach  open
