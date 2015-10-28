@@ -1947,7 +1947,7 @@ const char* cWM3000uServer::mGetCValue(char* s) { // abfrage des korrekturwertes
 	if (ok) {
         double pkADW;
 	    int samples = QString(mGetPSamples()).toInt();
-        if (sCTRLVersion.contains("2."))
+        if (sCTRLVersion.contains("1."))
             pkADW = (samples == 80) ? 1/640.0 : 1/512.0;
         else
             pkADW = (samples == 80) ? 1/320.0 : 1/256.0;
