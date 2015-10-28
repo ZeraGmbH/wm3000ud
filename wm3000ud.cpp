@@ -1939,12 +1939,13 @@ const char* cWM3000uServer::mGetCValue(char* s) { // abfrage des korrekturwertes
     {
 	// phi = delay * signalfreq * 360°
 	// delay = 12.288Mhz * 2 * 283,2uS / mclk
-	// mclk = samplefreq * psamples (80 od. 256) * (2 od. 8) * 256
+    // mclk = samplefreq * psamples (80 od. 256) * (8 od. 2) * 256
+    // mclk geändert wegen emv - problemen mclk = samplefreq * psamples (80 od. 256) * (4 od. 1) * 256
 	// -> phi = 12.288 * 2 * 283.2 * 360.0 * signalfreq/ (256 * (512 od. 640) * samplefreq)
 	double f = par.toDouble(&ok);
 	if (ok) {
 	    int samples = QString(mGetPSamples()).toInt();
-	    double pkADW = (samples == 80) ? 1/640.0 : 1/512.0;
+        double pkADW = (samples == 80) ? 1/320.0 : 1/256.0;
 	    // pkADW = -(2.25 + (pkADW * 12.288 * 566.4 * 360.0 * f / (256.0 * SampleFrequency)));
 	    // die 2.25° sind auch frequenzabhängig -> deshalb 
 	    // pkADW = -( (2.25*256.0 + pkADW * 12.288 * 566.4 * 360.0) * f / (256.0 * SampleFrequency));	
