@@ -678,7 +678,7 @@ const char* cWM3000uServer::mSetSampleMode(char* s) {
     QString par = pCmdInterpreter->m_pParser->GetKeyword(&s); // holt den parameter aus dem kommando
     int sm = par.toInt(&ok);
     
-    if ( (ok) && (sm > -1) && (sm< 4) ) {
+    if ( (ok) && (sm > -1) && (sm< 5) ) {
 	char PAR[1];
 	PAR[0] = sm;
 	hw_cmd CMD = { cmdcode: hwSetMode, device: 0, par: PAR, plen: 1,cmdlen: 0,cmddata: 0, RM:0 };
