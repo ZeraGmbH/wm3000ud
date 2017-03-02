@@ -35,6 +35,7 @@
 
 // V2.10 es wurde die berechnung der phasenkorrektur notwendig durch die sample frequenz änderung
 // des sigma delta wandlers angepasst
+// V2.11 02.03.2017 kommando zum setzen des sense modus lässt jetzt 4 (dc offset justage) zu
 
 #ifndef WMGOBAL_H
 #define WMGLOBAL_H
@@ -43,7 +44,7 @@
 #define CheckSumOffset 56
 #define LeiterkartenName "wm3000u"
 #define ServerBasisName "wm3000ud"
-#define ServerVersion "V2.10"
+#define ServerVersion "V2.11"
 #define InpBufSize 4096
 #define atmelFlashfilePath "/opt/zera/bin/atmel.hex"
 #define atmelResetBit 16
