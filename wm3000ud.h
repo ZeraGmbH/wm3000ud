@@ -276,5 +276,6 @@ private:
     QString Answer;
     int m_nJDataStat;
     double SampleFrequency;
+    double SignalFrequency; // we store the signalfrequency when phasecorrection is queried
 };
 #endif

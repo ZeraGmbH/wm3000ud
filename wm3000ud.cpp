@@ -1930,7 +1930,7 @@ const char* cWM3000uServer::mGetCValue(char* s) { // abfrage des korrekturwertes
 	sRange* rangeADW=SearchRange(dedicatedChannel,s);
 	double ampl = par.toDouble(&ok);
 	if (ok) {
-	    Answer = QString::number(rangeADW->pJustData->m_pGainCorrection->getCorrection(ampl) * rangeSense->pJustData->m_pGainCorrection->getCorrection(ampl)); // acknowledge
+        Answer = QString::number(rangeADW->pJustData->m_pPhaseCorrection->getCorrection(SignalFrequency) * rangeSense->pJustData->m_pGainCorrection->getCorrection(ampl)); // acknowledge
 	}
 	else 
 	    Answer = ERRVALString; // error value
@@ -1946,6 +1946,7 @@ const char* cWM3000uServer::mGetCValue(char* s) { // abfrage des korrekturwertes
 	double f = par.toDouble(&ok);
 	if (ok) {
         double pkADW;
+        SignalFrequency = f; // we store the value for adw gain correction !!!! not quite clean but....
 	    int samples = QString(mGetPSamples()).toInt();
         if (sCTRLVersion.contains("1."))
             pkADW = (samples == 80) ? 1/640.0 : 1/512.0;
