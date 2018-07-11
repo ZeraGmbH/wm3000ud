@@ -36,6 +36,8 @@
 // V2.10 es wurde die berechnung der phasenkorrektur notwendig durch die sample frequenz änderung
 // des sigma delta wandlers angepasst
 // V2.11 02.03.2017 kommando zum setzen des sense modus lässt jetzt 4 (dc offset justage) zu
+// V2.12 11.07.2018 die amplituden korrektur des AD-Wandlers erfolgt jetzt frequenzabhängig
+
 
 #ifndef WMGOBAL_H
 #define WMGLOBAL_H
