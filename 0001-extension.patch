@@ -1,0 +1,147 @@
+From df0446c994e5a14e2ccba49988e4ef7f618ac0ed Mon Sep 17 00:00:00 2001
+From: Peter Lohmer <p.lohmer@googlemail.com>
+Date: Thu, 6 Dec 2012 12:43:48 +0100
+Subject: [PATCH] extension
+
+server will wait up to 10 sec. for pcb atmel is running
+
+Signed-off-by: Peter Lohmer <p.lohmer@googlemail.com>
+---
+ wm3000ud.cpp |   62 +++++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ wm3000ud.h   |    4 ++++
+ wmuglobal.h  |    6 ++++++
+ 3 Dateien geändert, 69 Zeilen hinzugefügt(+), 3 Zeilen entfernt(-)
+
+diff --git a/wm3000ud.cpp b/wm3000ud.cpp
+index e3aeada..ef237cb 100644
+--- a/wm3000ud.cpp
++++ b/wm3000ud.cpp
+@@ -136,6 +136,10 @@ cWM3000uServer::cWM3000uServer()
+     I2CMasterAdr = I2CMasterAdress; //default 0x20
+     I2CSlaveAdr = I2CSlaveAdress; // default  0x21
+     DateTime = QDateTime(QDate(8000,12,24));
++
++    m_sFPGADeviceNode = FPGADeviceNode;
++    wait4AtmelRunning();
++
+     sSerialNumber = mGetSerialNumber();
+     sDeviceVersion = mGetDeviceVersion();
+     
+@@ -1498,17 +1502,69 @@ const char* cWM3000uServer::mGetCValueCNodeName() {
+ }
+ 
+ 
+-bool cWM3000uServer::EEPromAccessEnable() { 
++bool cWM3000uServer::EEPromAccessEnable()
++{
+     char PAR[1];
+     struct hw_cmd CMD = { cmdcode: hwGetFlashWriteAccess, device: 0, par: PAR, plen: 0,cmdlen: 0,cmddata: 0, RM:0 };
+-    if ( (I2CWriteCommand(&CMD) == 2) && (CMD.RM == 0)) {
++    if ( (I2CWriteCommand(&CMD) == 2) && (CMD.RM == 0))
++    {
+         quint8 answ[2];
+-	return ( (I2CReadOutput(answ,2) == 2) && (answ[0]) );
++        return ( (I2CReadOutput(answ,2) == 2) && (answ[0]) );
+     }
+     return(false);
+ }
+ 
+ 
++bool cWM3000uServer::isAtmelRunning()
++{
++    int fd;
++    if ( (fd = open(m_sFPGADeviceNode.latin1(),O_RDWR)) < 0 )
++    {
++        if (DEBUG1)  syslog(LOG_ERR,"error opening fpga device: %s\n",m_sFPGADeviceNode.latin1());
++    return false;
++    }
++
++   else
++    {
++        ulong pcbTestReg;
++        int r;
++        if ( (r = lseek(fd,0xfff,0)) < 0 )
++        {
++            if  (DEBUG1)  syslog(LOG_ERR,"error positioning fpga device: %s\n",m_sFPGADeviceNode.latin1());
++            return false;
++        }
++        else
++        {
++            if ( (r = read(fd,(char*) &pcbTestReg,len)) <0 )
++            {
++                if (DEBUG1)  syslog(LOG_ERR,"error reading fpga device: %s\n",m_sFPGADeviceNode.latin1());
++                return false;
++            }
++            else
++                return ((pcbTestReg & 1) > 0);
++        }
++    }
++}
++
++
++void cWM3000uServer::wait4AtmelRunning()
++{
++    int i;
++    for (i=0; i<100; i++)
++    {
++        if (isAtmelRunning())
++            break;
++        msleep(100);
++    }
++
++    if (DEBUG1)
++        if (i==100)
++            syslog(LOG_ERR,"atmel not running\n");
++
++}
++
++
++
+ void cWM3000uServer::AddChannelClient(QString& s) { // fügt einen client hinzu nach  open
+     tChannelSockListMap::iterator it=ChannelSockListMap.find(s);
+     tSockList *sl=it.data(); //  socketliste
+diff --git a/wm3000ud.h b/wm3000ud.h
+index dff0fc0..372d6c1 100644
+--- a/wm3000ud.h
++++ b/wm3000ud.h
+@@ -222,6 +222,8 @@ private:
+     
+     bool Test4HWPresent();
+     bool EEPromAccessEnable();
++    bool isAtmelRunning();
++    void wait4AtmelRunning();
+     void AddChannelClient(QString&); // fügt hinzu/löscht einen client der open/close
+     void DelChannelClient(QString&); //  auf einem kanal durchgeführt hat ( parameter ist der kanal) 
+     
+@@ -267,6 +269,8 @@ private:
+     QString sDeviceVersion; // version der hardware
+     QDateTime DateTime; // datum,uhrzeit
+     
++    QString m_sFPGADeviceNode; // für den zugriff zur hardware (fpga register)
++
+     QString Answer;
+     int m_nJDataStat;
+     double SampleFrequency;
+diff --git a/wmuglobal.h b/wmuglobal.h
+index cc855ad..ea073eb 100644
+--- a/wmuglobal.h
++++ b/wmuglobal.h
+@@ -22,9 +22,15 @@
+ // beim lesen der justagedaten aus dem flash werden auf der hinteren stelle der versionsnummern für lca und ctrl änderungen zugelassen ohne dass es zu einer meldung nicht justiert oder so führt.
+ // version V1.07 ab dem 24.04.2012 doctype beim schreiben xml datei korrigiert
+ 
++// version v1.08 einbau einer synchronisation auf atmel toggle bit. hierzu wird das zFPGA1reg device verwendet. auf register mit
++// der adresse 0xfff wird in bit 0 die auswertung des atmel toggle bit gesetzt. es wird beim start des pcb servers 10sek.
++// gewartet ob der atmel ins leben kommt. danach wird durchgestartet.
++
++
+ #ifndef WMGOBAL_H
+ #define WMGLOBAL_H
+ 
++#define FPGADeviceNode "/dev/zFPGA1reg"
+ #define CheckSumOffset 56
+ #define LeiterkartenName "wm3000u"
+ #define ServerBasisName "wm3000ud"
+-- 
+1.7.10.4
+

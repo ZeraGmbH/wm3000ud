@@ -42,8 +42,8 @@
 #define DEBUG2 (DebugLevel & 2) // alle i2c aktivitäten loggen
 #define DEBUG3 (DebugLevel & 4) // alle client an-,abmeldungen
 
-#define ch0_n 10 /* 10 bereiche für kanal 0 */
-#define ch1_n 20 /* 20 bereiche für kanal 1 */ 
+#define ch0_n 14 /* anzahl bereiche für kanal 0 */
+#define ch1_n 18 /* anzahl bereiche für kanal 1 */
 
 enum hw_cmdcode {	hwGetSerialNr = 0x0001,	hwGetDevName = 0x0002,
 			hwGetCtrlVersion = 0x0003,	hwGetLCAVersion = 0x0004,
@@ -242,6 +242,8 @@ private:
     char* GenAdressPointerParameter(uchar adresspointerSize, ulong adr);
     
     bool ReadJustData();
+    QString getFreqCode();
+
     Q_UINT16 m_nChksumFlash;
     
     QStringList CValueList; // fürs dekodieren liste aller bereitgestellten korrekturwerte 

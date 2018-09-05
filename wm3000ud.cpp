@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+#include <math.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/stat.h>
@@ -37,10 +38,15 @@ extern cNode* InitCmdTree();
 
 // bereiche von kanal 0 bzw. 1
 
-static sRange RangeCh0[ch0_n]={{"ADW80"  ,"ADW80"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
-			       {"ADW256"  ,"ADW256"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
+static sRange RangeCh0[ch0_n]={{"ADW80.16"  ,"ADW80.16"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
+                   {"ADW80.50"  ,"ADW80.50"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
+                   {"ADW80.60"  ,"ADW80.60"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
+
+                   {"ADW256.16"  ,"ADW256.16"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
+                   {"ADW256.50"  ,"ADW256.50"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
+                   {"ADW256.60"  ,"ADW256.60"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
 			       
-                                                 {"480V"   ,"480.0"  ,"4730418"  ,0 ,  Volt, rngPhys, NULL, NULL},
+                   {"480V"   ,"480.0"  ,"4730418"  ,0 ,  Volt, rngPhys, NULL, NULL},
  			       { "240V"   ,"240.0"  ,"4730418"  ,1 , Volt, rngPhys,NULL, NULL},
 			       { "120V"   ,"120.0"  ,"4730418"  ,2 , Volt, rngPhys,NULL, NULL},
 			       { "60V"     ,"60.0"   ,"4730418"  ,3 , Volt, rngPhys,NULL, NULL},
@@ -63,12 +69,10 @@ static sRange RangeCh0[ch0_n]={{"ADW80"  ,"ADW80"   ,"500000"  ,255,  Volt , rng
 			       { "E25mV"  , "0.025" ,"2995931" ,19,Volt, rngPhys,NULL, NULL}};
 */
 
-static sRange RangeCh1[ch1_n]={{"ADW80"  ,"ADW80"  ,"500000"  ,255,    Volt, rngVirt, NULL, NULL},
-			       {"ADW256"  ,"ADW256"  ,"500000"  ,255,    Volt, rngVirt,NULL, NULL},
-			       
-                                                 {"480V"   ,"480.0" ,"4730418"  ,0 ,   Volt, rngPhys,NULL, NULL},
+static sRange RangeCh1[ch1_n]={{"480V"   ,"480.0" ,"4730418"  ,0 ,   Volt, rngPhys,NULL, NULL},
 			       { "240V"   ,"240.0" ,"4730418"  ,1 ,  Volt, rngPhys,NULL, NULL},
-			       { "120V"   ,"120.0" ,"4730418"  ,2 ,  Volt, rngPhys,NULL, NULL},	 			       { "60V"     ,"60.0"  ,"4730418"  ,3 ,  Volt, rngPhys,NULL, NULL},
+                   { "120V"   ,"120.0" ,"4730418"  ,2 ,  Volt, rngPhys,NULL, NULL},
+                   { "60V"     ,"60.0"  ,"4730418"  ,3 ,  Volt, rngPhys,NULL, NULL},
 			       { "30V"     ,"30.0"  ,"4730418"  ,4 ,  Volt, rngPhys,NULL, NULL},
 			       { "15V"     ,"15.0"  ,"4730418"  ,5 ,  Volt, rngPhys,NULL, NULL},
 			       { "7.5V"    ,"7.5"    ,"4730418"  ,6 ,  Volt, rngPhys,NULL, NULL},
@@ -506,6 +510,18 @@ bool cWM3000uServer::ReadJustData() {
     }
     return(true);
 }
+
+
+QString cWM3000uServer::getFreqCode()
+{
+    if (fabs(SampleFrequency - 60.0) < 1e-3)
+        return QString("60");
+    if (fabs(SampleFrequency - 50.0) < 1e-3)
+        return QString("50");
+    if (fabs(SampleFrequency - 16.66) < 1e-3)
+        return QString("16");
+}
+
 
 sRange* cWM3000uServer::SearchRange(QString& ch,QString& rng) { // holt einen zeiger auf sRange abhängig v. kanal,range 
     tChannelListMap::Iterator it=ChannelRangeListMap.find(ch);
@@ -1924,11 +1940,14 @@ const char* cWM3000uServer::mGetCValue(char* s) { // abfrage des korrekturwertes
     QString dedicatedsCValue = pCmdInterpreter->dedicatedList.first();
     if (dedicatedsCValue == "CAMPLITUDE")
     {
-	int samples = QString(mGetPSamples()).toInt();
-	QString s;
+    int samples = QString(mGetPSamples()).toInt();
+    QString s, adwChannel, adwrange;
+    adwChannel = "ch0";
 	s = (samples == 80) ? "ADW80" : "ADW256";
-	sRange* rangeADW=SearchRange(dedicatedChannel,s);
-	double ampl = par.toDouble(&ok);
+    adwrange = QString("%1.%2").arg(s).arg(getFreqCode());
+    sRange* rangeADW=SearchRange(adwChannel, adwrange);
+
+    double ampl = par.toDouble(&ok);
 	if (ok) {
         Answer = QString::number(rangeADW->pJustData->m_pPhaseCorrection->getCorrection(SignalFrequency) * rangeSense->pJustData->m_pGainCorrection->getCorrection(ampl)); // acknowledge
 	}
