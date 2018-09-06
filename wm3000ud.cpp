@@ -518,8 +518,7 @@ QString cWM3000uServer::getFreqCode()
         return QString("60");
     if (fabs(SampleFrequency - 50.0) < 1e-3)
         return QString("50");
-    if (fabs(SampleFrequency - 16.66) < 1e-3)
-        return QString("16");
+    return QString("16"); // sonst haben wir 16 2/3 Hz
 }
 
 
