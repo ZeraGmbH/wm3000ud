@@ -242,6 +242,7 @@ private:
     char* GenAdressPointerParameter(uchar adresspointerSize, ulong adr);
     
     bool ReadJustData();
+    void setDefaultADCJustData(); // wenn die adc's noch nicht korrigiert wurden -> dann tun wir das hier mit default werten
     QString getFreqCode();
 
     Q_UINT16 m_nChksumFlash;

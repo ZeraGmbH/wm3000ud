@@ -512,6 +512,60 @@ bool cWM3000uServer::ReadJustData() {
 }
 
 
+void cWM3000uServer::setDefaultADCJustData()
+{
+    QList<QString> keyList;
+    QString channel;
+    QHash<QString, QList<double> > corrNodeHash;
+
+    QList<double> li8016;
+    li8016 << 0.999423 << 0.1 << 1.0 << 16.66 << 1.000740 << 25.0;
+    corrNodeHash["ADW80.16"] = li8016;
+
+    QList<double> li8050;
+    li8050 << 0.999423 << 0.1 << 0.9998 << 40.0 << 1.0000017 << 50.0 << 1.000296 << 60.61;
+    corrNodeHash["ADW80.50"] = li8050;
+
+    QList<double> li8060;
+    li8060 << 0.999423 << 0.1 << 0.999660 << 40.0 << 0.999805 << 50.0 << 1.000031 << 60.61;
+    corrNodeHash["ADW80.60"] = li8060;
+
+    QList<double> li25616;
+    li25616 << 0.999423 << 0.1 << 0.999959 << 16.66 << 1.000621 << 25.0;
+    corrNodeHash["ADW256.16"] = li25616;
+
+    QList<double> li25650;
+    li25650 << 0.999423 << 0.1 << 0.999750 << 40.0 << 0.999974 << 50.0 << 1.000227 << 60.61;
+    corrNodeHash["ADW256.50"] = li25650;
+
+    QList<double> li25660;
+    li25660 << 0.999423 << 0.1 << 0.999637 << 40.0 << 0.999786 << 50.0 << 0.999986 << 60.61;
+    corrNodeHash["ADW256.60"] = li25660;
+
+    channel = "ch0";
+    keyList = corrNodeHash.keys();
+
+    for (int i = 0; i < keyList.count(); i++)
+    {
+        QString rname;
+        rname = keyList.at(i);
+        sRange* rng = SearchRange(channel, rname);
+        if ((rng != 0) && (rng->pJustData->getStatus() == 0)) // wenn der adw bereich nicht justiert ist
+        {
+            QList<double> liNodes;
+            liNodes = corrNodeHash[rname];
+            int n = liNodes.count() >> 1; // wir unterstellen werte paare
+
+            for (int j = 0; j < n; j++)
+                rng->pJustData->m_pPhaseCorrection->setNode(j, cJustNode(liNodes[j*2], liNodes[j*2+1]));
+
+            rng->pJustData->m_pPhaseCorrection->cmpCoefficients();
+        }
+
+    }
+}
+
+
 QString cWM3000uServer::getFreqCode()
 {
     if (fabs(SampleFrequency - 60.0) < 1e-3)
