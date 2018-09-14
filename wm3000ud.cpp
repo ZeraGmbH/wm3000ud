@@ -508,6 +508,9 @@ bool cWM3000uServer::ReadJustData() {
 	    }
 	}
     }
+
+    setDefaultADCJustData();
+
     return(true);
 }
 
