@@ -38,7 +38,48 @@ extern cNode* InitCmdTree();
 
 // bereiche von kanal 0 bzw. 1
 
-static sRange RangeCh0[ch0_n]={{"ADW80.16"  ,"ADW80.16"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
+
+static sRange RangeCh0[10]=
+                  {{"ADW80"  ,"ADW80"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
+                   {"ADW256" ,"ADW256"  ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
+
+                   {"480V"   ,"480.0"   ,"4730418"  ,0 ,  Volt, rngPhys, NULL, NULL},
+                   { "240V"  ,"240.0"   ,"4730418"  ,1 , Volt, rngPhys,NULL, NULL},
+                   { "120V"  ,"120.0"   ,"4730418"  ,2 , Volt, rngPhys,NULL, NULL},
+                   { "60V"   , "60.0"   ,"4730418"  ,3 , Volt, rngPhys,NULL, NULL},
+                   { "30V"     ,"30.0"   ,"47304180"  ,4 , Volt, rngPhys,NULL, NULL},
+                   { "15V"     ,"15.0"   ,"4730418"  ,5 , Volt, rngPhys,NULL, NULL},
+                   { "7.5V"    ,"7.5"     ,"4730418"  ,6 , Volt, rngPhys,NULL, NULL},
+                   { "3.75V"  ,"3.75"   ,"4730418"  ,7 , Volt, rngPhys,NULL, NULL}};
+
+
+static sRange RangeCh1[20]=
+                  {{"ADW80"  ,"ADW80"  ,"500000"  ,255,    Volt, rngVirt, NULL, NULL},
+                   {"ADW256"  ,"ADW256"  ,"500000"  ,255,    Volt, rngVirt,NULL, NULL},
+
+                   {"480V"   ,"480.0" ,"4730418"  ,0 ,   Volt, rngPhys,NULL, NULL},
+                   { "240V"   ,"240.0" ,"4730418"  ,1 ,  Volt, rngPhys,NULL, NULL},
+                   { "120V"   ,"120.0" ,"4730418"  ,2 ,  Volt, rngPhys,NULL, NULL},
+                   { "60V"     ,"60.0"  ,"4730418"  ,3 ,  Volt, rngPhys,NULL, NULL},
+                   { "30V"     ,"30.0"  ,"4730418"  ,4 ,  Volt, rngPhys,NULL, NULL},
+                   { "15V"     ,"15.0"  ,"4730418"  ,5 ,  Volt, rngPhys,NULL, NULL},
+                   { "7.5V"    ,"7.5"    ,"4730418"  ,6 ,  Volt, rngPhys,NULL, NULL},
+                   { "3.75V"  ,"3.75"  ,"4730418"  ,7 ,  Volt, rngPhys,NULL, NULL},
+
+                   { "E15.0V"    , "15.0"   ,"2831155" ,10 , Volt, rngPhys,NULL, NULL},
+                   { "E10.0V"    , "10.0"   ,"4718592" ,11 , Volt, rngPhys,NULL, NULL},
+                   { "E5.0V"      ,"5.0"      ,"4718592" ,12,Volt, rngPhys,NULL, NULL},
+                   { "E2.5V"   ,"2.5"      ,"4718592" ,13,Volt, rngPhys,NULL, NULL},
+                   { "E1.0V"      , "1.0"     ,"4718592" ,14,Volt, rngPhys,NULL, NULL},
+                   { "E500mV", "0.5"     ,"2995931" ,15,Volt, rngPhys,NULL, NULL},
+                   { "E250mV", "0.25"   ,"2995931" ,16,Volt, rngPhys,NULL, NULL},
+                   { "E100mV", "0.1"     ,"2995931" ,17,Volt, rngPhys,NULL, NULL},
+                   { "E50mV"  , "0.05"   ,"2995931" ,18,Volt, rngPhys,NULL, NULL},
+                   { "E25mV"  , "0.025" ,"2995931" ,19,Volt, rngPhys,NULL, NULL}};
+
+
+static sRange RangeCh0V212[14]=
+                  {{"ADW80.16"  ,"ADW80.16"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
                    {"ADW80.50"  ,"ADW80.50"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
                    {"ADW80.60"  ,"ADW80.60"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
 
@@ -55,21 +96,9 @@ static sRange RangeCh0[ch0_n]={{"ADW80.16"  ,"ADW80.16"   ,"500000"  ,255,  Volt
 			       { "7.5V"    ,"7.5"     ,"4730418"  ,6 , Volt, rngPhys,NULL, NULL},
 			       { "3.75V"  ,"3.75"   ,"4730418"  ,7 , Volt, rngPhys,NULL, NULL}};
 
-/*
-			       
-			       { "E15.0V"    , "15.0"   ,"2831155" ,10, Volt, rngPhys,NULL, NULL},
-			       { "E10.0V"    , "10.0"   ,"4718592" ,11,  Volt, rngPhys,NULL, NULL},
-			       { "E5.0V"      ,"5.0"      ,"4718592" ,12,Volt, rngPhys,NULL, NULL},
-			       { "E2.5V"   ,"2.5"      ,"4718592" ,13,Volt, rngPhys,NULL, NULL},
-			       { "E1.0V"      , "1.0"     ,"4718592" ,14,Volt, rngPhys,NULL, NULL},
-			       { "E500mV", "0.5"     ,"2995931" ,15,Volt, rngPhys,NULL, NULL},
-			       { "E250mV", "0.25"   ,"2995931" ,16,Volt, rngPhys,NULL, NULL},
-			       { "E100mV", "0.1"     ,"2995931" ,17,Volt, rngPhys,NULL, NULL},
-			       { "E50mV"  , "0.05"   ,"2995931" ,18,Volt, rngPhys,NULL, NULL},
-			       { "E25mV"  , "0.025" ,"2995931" ,19,Volt, rngPhys,NULL, NULL}};
-*/
 
-static sRange RangeCh1[ch1_n]={{"480V"   ,"480.0" ,"4730418"  ,0 ,   Volt, rngPhys,NULL, NULL},
+static sRange RangeCh1V212[18]=
+                  {{"480V"   ,"480.0" ,"4730418"  ,0 ,   Volt, rngPhys,NULL, NULL},
 			       { "240V"   ,"240.0" ,"4730418"  ,1 ,  Volt, rngPhys,NULL, NULL},
                    { "120V"   ,"120.0" ,"4730418"  ,2 ,  Volt, rngPhys,NULL, NULL},
                    { "60V"     ,"60.0"  ,"4730418"  ,3 ,  Volt, rngPhys,NULL, NULL},
@@ -95,26 +124,28 @@ QStringList MeasChannelList;
 cWM3000uServer::cWM3000uServer() 
     :cZHServer() {
     
+    DebugLevel = 0; // MaxDebugLevel; // default
+    PSamples = 80; // default
+    SMode = 0; // default
+    SyncSource = 0; // default 0 = extern
+    SyncPeriod = 1000; // default 1000ms
+    SampleFrequency = 50.0; // default 50 hz abtastfrequenz
+    sI2CDevNode = I2CDeviceNode; //default
+    I2CMasterAdr = I2CMasterAdress; //default 0x20
+    I2CSlaveAdr = I2CSlaveAdress; // default  0x21
+    DateTime = QDateTime(QDate(8000,12,24));
+
+    m_sFPGADeviceNode = FPGADeviceNode;
+
     cParse* parser = new(cParse); // das ist der parser
     pCmdInterpreter = new cCmdInterpreter(this,InitCmdTree(),parser); // das ist der kommando interpreter
     
     MeasChannelList << "ch0" << "ch1";
     CValueList << "CAMPLITUDE" << "CPHASE" << "COFFSET";
-    
-    ChannelRangeArrayMap["ch0"] = &RangeCh0[0]; // alle sRange* / kanal
-    ChannelRangeArrayMap["ch1"] = &RangeCh1[0];
-    sRange* sr=&RangeCh0[0];
-    for (unsigned int i = 0; i<(sizeof(RangeCh0)/sizeof(sRange)); i++,sr++) {
-	Ch0RangeList << sr->RName;
-	sr->pJustData=new cWMJustData; // default justage werte
-	sr->pOldJData=new cOldWMJustData; // dito
-    }
-    sr=&RangeCh1[0];
-    for (unsigned int i = 0; i<(sizeof(RangeCh1)/sizeof(sRange)); i++,sr++) {
-	Ch1RangeList << sr->RName;
-	sr->pJustData=new cWMJustData; // default justage werte
-	sr->pOldJData=new cOldWMJustData; // dito
-    }
+
+    ReadJustDataVersion();
+    SetDeviceRanges(false);
+
     ChannelRangeListMap["ch0"] = &Ch0RangeList;
     ChannelRangeListMap["ch1"] = &Ch1RangeList;
     ChannelCValueListMap["ch0"] = &CValueList; // die sensorik für beide kanäle ist gleich
@@ -130,27 +161,14 @@ cWM3000uServer::cWM3000uServer()
     ChannelSockListMap["ch0"] = &SockList0;
     ChannelSockListMap["ch1"] = &SockList1;
     
-    DebugLevel = 0; // MaxDebugLevel; // default
-    PSamples = 80; // default
-    SMode = 0; // default
-    SyncSource = 0; // default 0 = extern
-    SyncPeriod = 1000; // default 1000ms
-    SampleFrequency = 50.0; // default 50 hz abtastfrequenz
-    sI2CDevNode = I2CDeviceNode; //default
-    I2CMasterAdr = I2CMasterAdress; //default 0x20
-    I2CSlaveAdr = I2CSlaveAdress; // default  0x21
-    DateTime = QDateTime(QDate(8000,12,24));
-
-    m_sFPGADeviceNode = FPGADeviceNode;
-
     QFile atmelFile(atmelFlashfilePath);
     if (atmelFile.exists())
     {
-        if (programAtmelFlash() && wait4AtmelRunning())
+        if (programAtmelFlash())
             atmelFile.remove();
     }
-    else
-        wait4AtmelRunning();
+
+    wait4AtmelRunning();
 
     sSerialNumber = mGetSerialNumber();
     sDeviceVersion = mGetDeviceVersion();
@@ -328,190 +346,340 @@ char* cWM3000uServer::GenAdressPointerParameter(uchar adresspointerSize, ulong a
     return par;
 }
 
-
-bool cWM3000uServer::ReadJustData() { 
-    m_nJDataStat = 0; // status erst mal reset
+bool cWM3000uServer::readJustFlash(QByteArray &jdata)
+{
     QByteArray ba(6); // byte array zur aufnahme länge und checksumme
     c24LC256* Flash=new c24LC256(sI2CDevNode,DebugLevel,I2CEEPromAdress);
-    if ( (6 - Flash->ReadData(ba.data(),6,0)) >0 ) {
-	if DEBUG1 syslog(LOG_ERR,"error reading flashmemory\n");
-	delete Flash;
-	return(false); // lesefehler
+    if ( (6 - Flash->ReadData(ba.data(),6,0)) >0 )
+    {
+        if DEBUG1 syslog(LOG_ERR,"error reading flashmemory\n");
+        delete Flash;
+        return(false); // lesefehler
     }
+
     QDataStream bastream( &ba, QIODevice::ReadOnly );
     uint count;
-    Q_UINT16 chksumCMP = 0;
-    bastream >> count >> m_nChksumFlash; // länge der flashdaten u. checksumme 
-    // syslog(LOG_ERR,"flash length is %d, chksum is %d\n",count,m_nChksumFlash);	
-    if ( count > (uint)Flash->size() ) {
-	if DEBUG1 syslog(LOG_ERR,"error reading flashmemory, count > flash\n");
-	delete Flash;
-	return(false); // lesefehler
+
+    bastream >> count >> m_nChksumFlash; // länge der flashdaten u. checksumme
+    if ( count > (uint)Flash->size() )
+    {
+        if DEBUG1 syslog(LOG_ERR,"error reading flashmemory, count > flash\n");
+        delete Flash;
+        return(false); // lesefehler
     }
-    QByteArray ba2(count); // byte array zur aufnahme der gesamten daten
-    if ( (count - Flash->ReadData(ba2.data(),count,0)) >0 ) {
-	if DEBUG1 syslog(LOG_ERR,"error reading flashmemory\n");
-	delete Flash;
-	return(false); // lesefehler
+
+    jdata.resize(count); // byte array zur aufnahme der gesamten daten
+
+    if ( (count - Flash->ReadData(jdata.data(),count,0)) >0 )
+    {
+        if DEBUG1 syslog(LOG_ERR,"error reading flashmemory\n");
+        delete Flash;
+        return(false); // lesefehler
     }
-    
+
+    return true;
+}
+
+
+bool cWM3000uServer::validJustData(QByteArray &jdata)
+{
     QBuffer mem;
-    mem.setBuffer(&ba2);
+    mem.setBuffer(&jdata);
     mem.open(QIODevice::ReadWrite);
     mem.at(0);
-    
+
+    Q_UINT16 chksumCMP = 0;
+
+    uint count;
+    count = jdata.size();
+
     QByteArray ca(6); // qbyte array mit 6 bytes
     QDataStream castream( &ca, QIODevice::WriteOnly );
     castream << count << chksumCMP;
-    
+
     mem.writeBlock(ca); // 0 setzen der checksumme
-        
-    chksumCMP = qChecksum(ba2.data(),ba2.size());
-    // syslog(LOG_ERR,"computed flash chksum is %d\n",chksumCMP);	
-    if (chksumCMP != m_nChksumFlash) {
-	if DEBUG1 syslog(LOG_ERR,"invalid checksum encountered reading flashmemory\n");
-	return(false); // daten fehlerhaft
+
+    chksumCMP = qChecksum(jdata.data(),jdata.size());
+    if (chksumCMP != m_nChksumFlash)
+    {
+        if DEBUG1 syslog(LOG_ERR,"invalid checksum encountered reading flashmemory\n");
+        return(false); // daten fehlerhaft
     }
-    
-     // jetzt die daten noch einsortieren
-    QString SVersion;
-    QDataStream ba2stream( &ba2, QIODevice::ReadOnly );
+
+    return true;
+}
+
+
+bool cWM3000uServer::fetchJustData(QByteArray &jdata)
+{
+    // jetzt die daten noch einsortieren
+    QDataStream bastream(&jdata, QIODevice::ReadOnly );
     char flashdata[100];
     char* s = flashdata;
-    ba2stream >> count >> chksumCMP;
-    
-    ba2stream >> s;
-    
+    Q_UINT16 chksumCMP;
+    uint count;
+
+    bastream >> count >> chksumCMP;
+    bastream >> s;
+
     // ab version v1.02 version testen
-    if (QString(s) == "ServerVersion") {
-	ba2stream >> s;
-	SVersion = QString(s);
-	ba2stream >> s; // jetzt steht in s auch für die neue version der leiterplatten name
+    if (QString(s) == "ServerVersion")
+    {
+        bastream >> s;
+        m_sJustDataVersion = QString(s);
+        bastream >> s; // jetzt steht in s auch für die neue version der leiterplatten name
     }
     else
-	SVersion == "V0.00"; // dann ist es eine alte version
-	
-    
-    if (QString(s) != LeiterkartenName) {
-	if DEBUG1 syslog(LOG_ERR,"flashmemory read, contains wrong pcb name\n");
-	return false; // leiterkarten name falsch
+        m_sJustDataVersion = "V0.00"; // dann ist es eine alte version
+
+
+    if (QString(s) != LeiterkartenName)
+    {
+        if DEBUG1 syslog(LOG_ERR,"flashmemory read, contains wrong pcb name\n");
+        return false; // leiterkarten name falsch
     }
-    
-    ba2stream >> s;
-    
-    QString qs = QString(s); 
-    if (qs != sDeviceVersion) {
-	// test ob sich nur die hinteren nummern der lca bzw. ctrl version geändert haben
-	// indem die hinteren stellen der nummern aus sDeviceVersion nach s übertragen werden
-	// und anschliessend nochmal verglichen wird
-	
-	QString ss, sd, ss2, sd2;
-	ss = qs.section(';',2,2); // LCA: x.xx
-	ss2 = '.' +ss.section('.',1,1); // .xx
-	sd = sDeviceVersion.section(';',2,2); // LCA: x.yy
-	sd2 = '.' +sd.section('.',1,1); // .yy
-	ss.replace(ss2,sd2); // tausch .xx durch .yy
-	qs.replace(qs.section(';',2,2), ss); // LCA: x.yy -> s
-	
-	ss = qs.section(';',3,3); // CTRL: x.xx
-	ss2 = '.' +ss.section('.',1,1); // .xx
-	sd = sDeviceVersion.section(';',3,3); // CTRL: x.yy
-	sd2 = '.' +sd.section('.',1,1); // .yy
-	ss.replace(ss2,sd2); // tausch .xx durch .yy
-	qs.replace(qs.section(';',3,3), ss); // CTRL: x.yy -> s
-	
-	if (qs != sDeviceVersion) {
-	    if DEBUG1 syslog(LOG_ERR,"flashmemory read, contains wrong versionnumber\n");
-	    m_nJDataStat += wrongVERS;
-	    if (!EEPromAccessEnable()) return false; // versionsnummer falsch
-	}
+
+    bastream >> s;
+
+    QString qs = QString(s);
+    if (qs != sDeviceVersion)
+    {
+        // test ob sich nur die hinteren nummern der lca bzw. ctrl version geändert haben
+        // indem die hinteren stellen der nummern aus sDeviceVersion nach s übertragen werden
+        // und anschliessend nochmal verglichen wird
+
+        QString ss, sd, ss2, sd2;
+        ss = qs.section(';',2,2); // LCA: x.xx
+        ss2 = '.' +ss.section('.',1,1); // .xx
+        sd = sDeviceVersion.section(';',2,2); // LCA: x.yy
+        sd2 = '.' +sd.section('.',1,1); // .yy
+        ss.replace(ss2,sd2); // tausch .xx durch .yy
+        qs.replace(qs.section(';',2,2), ss); // LCA: x.yy -> s
+
+        ss = qs.section(';',3,3); // CTRL: x.xx
+        ss2 = '.' +ss.section('.',1,1); // .xx
+        sd = sDeviceVersion.section(';',3,3); // CTRL: x.yy
+        sd2 = '.' +sd.section('.',1,1); // .yy
+        ss.replace(ss2,sd2); // tausch .xx durch .yy
+        qs.replace(qs.section(';',3,3), ss); // CTRL: x.yy -> s
+
+        if (qs != sDeviceVersion)
+        {
+            if DEBUG1 syslog(LOG_ERR,"flashmemory read, contains wrong versionnumber\n");
+            m_nJDataStat += wrongVERS;
+            if (!EEPromAccessEnable()) return false; // versionsnummer falsch
+        }
     }
-    
-    ba2stream >> s;
-    if (QString(s) != sSerialNumber) {
-	if DEBUG1 syslog(LOG_ERR,"flashmemory read, contains wrong serialnumber\n");
-	m_nJDataStat += wrongSNR;
-	if (!EEPromAccessEnable()) return false; // seriennummer falsch
+
+    bastream >> s;
+    if (QString(s) != sSerialNumber)
+    {
+        if DEBUG1 syslog(LOG_ERR,"flashmemory read, contains wrong serialnumber\n");
+        m_nJDataStat += wrongSNR;
+        if (!EEPromAccessEnable()) return false; // seriennummer falsch
     }
-    
-    ba2stream >> s;
+
+    bastream >> s;
     DateTime.fromString(QString(s),Qt::TextDate); // datum und uhrzeit übernehmen
-    
-    if (SVersion != "V0.00") { // es ist nicht eine alte server version bei der die serverversion noch nicht eingetragen war 
-	while (!ba2stream.atEnd()) {
-	    ba2stream >> s;
-	    QString chname=s; // für welchen kanal
-	    
-	    ba2stream >> count;
-	    
-	    sRange dummy;
-	    dummy.pJustData=new cWMJustData; // default justage werte
-	    for (uint i=0;i<count;i++) {
-		ba2stream >> s;
-		QString rngname=s; // für welchen bereich
-		sRange* rng = SearchRange(chname,rngname);
-		if (!rng) { // wenn wir den bereich nicht gefunden haben
-		    rngname = RangeTranslationMap[rngname]; // prüfen wir ob der bereichname
-		    rng = SearchRange(chname,rngname); // übersetzt werden muss
-		} // und ob wir dann den bereich finden
-		
-		if (!rng) // wenn wir den bereich nicht gefunden haben, "saugen" wir die daten
-		    rng = &dummy; // nach dummy
-		rng->pJustData->Deserialize(ba2stream); // justagedaten  (koeffizienten, stützstellen und status
-	    }
-	    delete dummy.pJustData;
-	}
+
+    if (m_sJustDataVersion != "V0.00")
+    { // es ist nicht eine alte server version bei der die serverversion noch nicht eingetragen war
+        while (!bastream.atEnd())
+        {
+            bastream >> s;
+            QString chname=s; // für welchen kanal
+
+            bastream >> count;
+
+            sRange dummy;
+            dummy.pJustData=new cWMJustData; // default justage werte
+            for (uint i=0;i<count;i++)
+            {
+                bastream >> s;
+                QString rngname=s; // für welchen bereich
+                sRange* rng = SearchRange(chname,rngname);
+                if (!rng)
+                {
+                    // wenn wir den bereich nicht gefunden haben
+                    rngname = RangeTranslationMap[rngname]; // prüfen wir ob der bereichname
+                    rng = SearchRange(chname,rngname); // übersetzt werden muss
+                } // und ob wir dann den bereich finden
+
+                if (!rng) // wenn wir den bereich nicht gefunden haben, "saugen" wir die daten
+                    rng = &dummy; // nach dummy
+                rng->pJustData->Deserialize(bastream); // justagedaten  (koeffizienten, stützstellen und status
+            }
+            delete dummy.pJustData;
+        }
     }
     else
     {
-	while (!ba2stream.atEnd()) {
-	    ba2stream >> s;
-	    QString chname=s; // für welchen kanal
-	    
-	    ba2stream >> count;
-	    sRange dummy;
-	    dummy.pOldJData=new cOldWMJustData;
-	    for (uint i=0;i<count;i++) {
-		ba2stream >> s;
-		QString rngname=s; // für welchen bereich
-		sRange* rng = SearchRange(chname,rngname);
-		sRange dummy;
-		if (!rng) { // wenn wir den bereich nicht gefunden haben
-		    rngname = RangeTranslationMap[rngname]; // prüfen wir ob der bereichname
-		    rng = SearchRange(chname,rngname); // übersetzt werden muss
-		} // und ob wir dann den bereich finden
-		if (!rng)
-		    rng = &dummy;
-		rng->pOldJData->m_JData.Deserialize(ba2stream); // justagedaten 
-		rng->pOldJData->m_NInfo.Deserialize(ba2stream); // stützstellen
-	    }
-	    delete dummy.pOldJData;  
-	}
-	
-	// wir haben die alten justage daten jetzt müssen wir sie noch umwandeln
-	for (QStringList::iterator it=MeasChannelList.begin(); it !=MeasChannelList.end(); it++) {		    QStringList* sl=ChannelRangeListMap.find(*it).data(); 
-	    QStringList::Iterator it2;
-	    for ( it2 = sl->begin(); it2 != sl->end(); ++it2 ) {
-		sRange* rng = SearchRange(*it,*it2);
-		rng->pJustData->setStatus( rng->pOldJData->m_JData.m_Status); // status übernommen
-		rng->pJustData->m_pOffsetCorrection->setCoefficient(0, rng->pOldJData->m_JData.m_OffsetCorrection);
-		rng->pJustData->m_pOffsetCorrection->setNode(0, cJustNode(rng->pOldJData->m_JData.m_OffsetCorrection, 0.0)); // offset korrektur übernommen
-		
-		rng->pJustData->m_pGainCorrection->setCoefficient(0, rng->pOldJData->m_JData.m_GainCorrection);
-		rng->pJustData->m_pGainCorrection->setNode(0, cJustNode(rng->pOldJData->m_JData.m_GainCorrection, 0.0)); // gain korrektur übernommen
-		
-		for (int i = 0; i < 4; i++)
-		{
-		    rng->pJustData->m_pPhaseCorrection->setCoefficient(i, rng->pOldJData->m_JData.m_PhaseCoefficient[3-i]); // koeffizienten stehen im neuen format anders sortiert
-		    rng->pJustData->m_pPhaseCorrection->setNode(i, cJustNode(rng->pOldJData->m_NInfo.m_NInformation[i*2+1],rng->pOldJData->m_NInfo.m_NInformation[i*2])); // phase korrektur übernommen
-		}
-	    }
-	}
+        while (!bastream.atEnd())
+        {
+            bastream >> s;
+            QString chname=s; // für welchen kanal
+
+            bastream >> count;
+            sRange dummy;
+            dummy.pOldJData=new cOldWMJustData;
+            for (uint i=0;i<count;i++)
+            {
+                bastream >> s;
+                QString rngname=s; // für welchen bereich
+                sRange* rng = SearchRange(chname,rngname);
+                sRange dummy;
+                if (!rng)
+                {
+                    // wenn wir den bereich nicht gefunden haben
+                    rngname = RangeTranslationMap[rngname]; // prüfen wir ob der bereichname
+                    rng = SearchRange(chname,rngname); // übersetzt werden muss
+                } // und ob wir dann den bereich finden
+
+                if (!rng)
+                    rng = &dummy;
+                rng->pOldJData->m_JData.Deserialize(bastream); // justagedaten
+                rng->pOldJData->m_NInfo.Deserialize(bastream); // stützstellen
+            }
+            delete dummy.pOldJData;
+        }
+
+        // wir haben die alten justage daten jetzt müssen wir sie noch umwandeln
+        for (QStringList::iterator it=MeasChannelList.begin(); it !=MeasChannelList.end(); it++)
+        {
+            QStringList* sl=ChannelRangeListMap.find(*it).data();
+            QStringList::Iterator it2;
+            for ( it2 = sl->begin(); it2 != sl->end(); ++it2 )
+            {
+                sRange* rng = SearchRange(*it,*it2);
+                rng->pJustData->setStatus( rng->pOldJData->m_JData.m_Status); // status übernommen
+                rng->pJustData->m_pOffsetCorrection->setCoefficient(0, rng->pOldJData->m_JData.m_OffsetCorrection);
+                rng->pJustData->m_pOffsetCorrection->setNode(0, cJustNode(rng->pOldJData->m_JData.m_OffsetCorrection, 0.0)); // offset korrektur übernommen
+
+                rng->pJustData->m_pGainCorrection->setCoefficient(0, rng->pOldJData->m_JData.m_GainCorrection);
+                rng->pJustData->m_pGainCorrection->setNode(0, cJustNode(rng->pOldJData->m_JData.m_GainCorrection, 0.0)); // gain korrektur übernommen
+
+                for (int i = 0; i < 4; i++)
+                {
+                    rng->pJustData->m_pPhaseCorrection->setCoefficient(i, rng->pOldJData->m_JData.m_PhaseCoefficient[3-i]); // koeffizienten stehen im neuen format anders sortiert
+                    rng->pJustData->m_pPhaseCorrection->setNode(i, cJustNode(rng->pOldJData->m_NInfo.m_NInformation[i*2+1],rng->pOldJData->m_NInfo.m_NInformation[i*2])); // phase korrektur übernommen
+                }
+            }
+        }
     }
 
-    setDefaultADCJustData();
-
     return(true);
+}
+
+
+void cWM3000uServer::fetchJustDataVersion(QByteArray &jdata)
+{
+    QDataStream bastream(&jdata, QIODevice::ReadOnly );
+    char flashdata[100];
+    char* s = flashdata;
+    Q_UINT16 chksumCMP;
+    uint count;
+
+    bastream >> count >> chksumCMP;
+
+    bastream >> s;
+
+    // ab version v1.02 version testen
+    if (QString(s) == "ServerVersion")
+    {
+        bastream >> s;
+        m_sJustDataVersion = QString(s);
+    }
+    else
+        m_sJustDataVersion = "V0.00"; // dann ist es eine alte version
+}
+
+
+bool cWM3000uServer::jdvGreater(QString ver)
+{
+    float actVersion;
+    float cmpVersion;
+    QString s;
+
+    s=m_sJustDataVersion.right(4);
+    actVersion = s.toFloat();
+    s = ver.right(4);
+    cmpVersion = s.toFloat();
+
+    return(actVersion > cmpVersion);
+}
+
+
+bool cWM3000uServer::ReadJustData()
+{
+    QByteArray JustData;
+    m_nJDataStat = 0; // status erst mal reset
+    if (readJustFlash(JustData))
+    {
+        if (validJustData(JustData))
+        {
+            return fetchJustData(JustData);
+        }
+    }
+
+    return false;
+}
+
+
+void cWM3000uServer::initJustData()
+{
+    sRange* sr = ChannelRangeArrayMap["ch0"];
+    for (unsigned int i = 0; i<(sizeof(RangeCh0)/sizeof(sRange)); i++,sr++)
+    {
+        Ch0RangeList << sr->RName;
+        sr->pJustData=new cWMJustData; // default justage werte
+        sr->pOldJData=new cOldWMJustData; // dito
+    }
+
+    sr = ChannelRangeArrayMap["ch1"];
+    for (unsigned int i = 0; i<(sizeof(RangeCh1)/sizeof(sRange)); i++,sr++)
+    {
+        Ch1RangeList << sr->RName;
+        sr->pJustData=new cWMJustData; // default justage werte
+        sr->pOldJData=new cOldWMJustData; // dito
+    }
+}
+
+
+void cWM3000uServer::SetDeviceRanges(bool force)
+{
+    if (jdvGreater(QString("V2.11")) || force)
+    {   // wenn wir neue justagedaten vorgefunden haben oder wenn befehl zum speichern kommt
+        // denn spätestens dann haben wir neue justagedaten
+        m_bNewJustData = true;
+        ChannelRangeArrayMap["ch0"] = &RangeCh0V212[0]; // alle sRange* / kanal
+        ChannelRangeArrayMap["ch1"] = &RangeCh1V212[0];
+        initJustData();
+        setDefaultADCJustData();
+    }
+    else
+    {
+        m_bNewJustData = false;
+        ChannelRangeArrayMap["ch0"] = &RangeCh0[0]; // alle sRange* / kanal
+        ChannelRangeArrayMap["ch1"] = &RangeCh1[0];
+        initJustData();
+    }
+}
+
+
+void cWM3000uServer::ReadJustDataVersion()
+{
+    QByteArray JustData;
+    m_nJDataStat = 0; // status erst mal reset
+    if (readJustFlash(JustData))
+    {
+        if (validJustData(JustData))
+        {
+            fetchJustDataVersion(JustData);
+        }
+    }
+
+    // wenn wir nichts lesen konnten dann nehmen wir das neue format
+    m_sJustDataVersion = ServerVersion;
 }
 
 
@@ -1024,7 +1192,12 @@ const char* cWM3000uServer::mJustData2EEProm(char* s) {
 	 Answer = ERRAUTString; // nicht erlaubt
 	 return Answer.latin1();
     }
-     
+
+    // wenn wir einen speicher befehl erhalten haben wird in jedem falle das neue justagedaten format gewählt
+    SetDeviceRanges(true);
+    // und  wir lesen die daten nochmal denn eine bereits justierte wm wird mit dem neuen verfahren nur besser
+    ReadJustData();
+
     uint count=0;
     Q_UINT16 chksum=0;
     QByteArray ba;
@@ -1456,6 +1629,12 @@ const char* cWM3000uServer::mGetDeviceVersion() {
 
 const char* cWM3000uServer::mGetServerVersion() {
     return sSoftwareVersion.latin1();
+}
+
+
+const char *cWM3000uServer::mGetAdjustmentVersion()
+{
+    return m_sJustDataVersion.latin1();
 }
 
 
@@ -1985,7 +2164,8 @@ const char* cWM3000uServer::mGetStatus() {
 }
 
 
-const char* cWM3000uServer::mGetCValue(char* s) { // abfrage des korrekturwertes (ev. mit parameter)
+const char* cWM3000uServer::mGetCValue(char* s) // abfrage des korrekturwertes (ev. mit parameter)
+{
     bool ok;
     QString par = pCmdInterpreter->m_pParser->GetKeyword(&s); // holt den parameter aus dem kommando
     QString dedicatedChannel = pCmdInterpreter->dedicatedList.first();
@@ -1996,52 +2176,71 @@ const char* cWM3000uServer::mGetCValue(char* s) { // abfrage des korrekturwertes
     QString dedicatedsCValue = pCmdInterpreter->dedicatedList.first();
     if (dedicatedsCValue == "CAMPLITUDE")
     {
-    int samples = QString(mGetPSamples()).toInt();
-    QString s, adwChannel, adwrange;
-    adwChannel = "ch0";
-	s = (samples == 80) ? "ADW80" : "ADW256";
-    adwrange = QString("%1.%2").arg(s).arg(getFreqCode());
-    sRange* rangeADW=SearchRange(adwChannel, adwrange);
+        QString s;
+        int samples;
+        double ampl;
 
-    double ampl = par.toDouble(&ok);
-	if (ok) {
-        Answer = QString::number(rangeADW->pJustData->m_pPhaseCorrection->getCorrection(SignalFrequency) * rangeSense->pJustData->m_pGainCorrection->getCorrection(ampl)); // acknowledge
-	}
-	else 
-	    Answer = ERRVALString; // error value
+        samples = QString(mGetPSamples()).toInt();
+        s = (samples == 80) ? "ADW80" : "ADW256";
+        ampl = par.toDouble(&ok);
+
+        if (m_bNewJustData)
+        {
+            QString adwChannel, adwrange;
+
+            adwChannel = "ch0";
+            adwrange = QString("%1.%2").arg(s).arg(getFreqCode());
+            sRange* rangeADW=SearchRange(adwChannel, adwrange);
+            if (ok)
+            {
+                Answer = QString::number(rangeADW->pJustData->m_pPhaseCorrection->getCorrection(SignalFrequency) * rangeSense->pJustData->m_pGainCorrection->getCorrection(ampl)); // acknowledge
+            }
+            else
+                Answer = ERRVALString; // error value
+        }
+        else
+        {
+            sRange* rangeADW=SearchRange(dedicatedChannel,s);
+            if (ok)
+            {
+                Answer = QString::number(rangeADW->pJustData->m_pGainCorrection->getCorrection(ampl) * rangeSense->pJustData->m_pGainCorrection->getCorrection(ampl)); // acknowledge
+            }
+            else
+                Answer = ERRVALString; // error value
+        }
     }
     else
     if (dedicatedsCValue == "CPHASE")
     {
-	// phi = delay * signalfreq * 360°
-	// delay = 12.288Mhz * 2 * 283,2uS / mclk
-    // mclk = samplefreq * psamples (80 od. 256) * (8 od. 2) * 256
-    // mclk geändert wegen emv - problemen mclk = samplefreq * psamples (80 od. 256) * (4 od. 1) * 256
-	// -> phi = 12.288 * 2 * 283.2 * 360.0 * signalfreq/ (256 * (512 od. 640) * samplefreq)
-	double f = par.toDouble(&ok);
-	if (ok) {
-        double pkADW;
-        SignalFrequency = f; // we store the value for adw gain correction !!!! not quite clean but....
-	    int samples = QString(mGetPSamples()).toInt();
-        if (sCTRLVersion.contains("1."))
-            pkADW = (samples == 80) ? 1/640.0 : 1/512.0;
+        // phi = delay * signalfreq * 360°
+        // delay = 12.288Mhz * 2 * 283,2uS / mclk
+        // mclk = samplefreq * psamples (80 od. 256) * (8 od. 2) * 256
+        // mclk geändert wegen emv - problemen mclk = samplefreq * psamples (80 od. 256) * (4 od. 1) * 256
+        // -> phi = 12.288 * 2 * 283.2 * 360.0 * signalfreq/ (256 * (512 od. 640) * samplefreq)
+        double f = par.toDouble(&ok);
+        if (ok) {
+            double pkADW;
+            SignalFrequency = f; // we store the value for adw gain correction !!!! not quite clean but....
+            int samples = QString(mGetPSamples()).toInt();
+            if (sCTRLVersion.contains("1."))
+                pkADW = (samples == 80) ? 1/640.0 : 1/512.0;
+            else
+                pkADW = (samples == 80) ? 1/320.0 : 1/256.0;
+            // pkADW = -(2.25 + (pkADW * 12.288 * 566.4 * 360.0 * f / (256.0 * SampleFrequency)));
+            // die 2.25° sind auch frequenzabhängig -> deshalb
+            // pkADW = -( (2.25*256.0 + pkADW * 12.288 * 566.4 * 360.0) * f / (256.0 * SampleFrequency));
+            // es sind 360.0 / (80 * 2)  bzw. 360 / ( 256 * 2) -> 360/ 2.0*samples
+            pkADW = -( ( (360.0*256.0 / (2.0*samples)) + pkADW * 12.288 * 566.4 * 360.0) * f / (256.0 * SampleFrequency));
+            double pkSense = rangeSense->pJustData->m_pPhaseCorrection->getCorrection(f);
+            Answer = QString::number(pkSense+pkADW);
+        }
         else
-            pkADW = (samples == 80) ? 1/320.0 : 1/256.0;
-	    // pkADW = -(2.25 + (pkADW * 12.288 * 566.4 * 360.0 * f / (256.0 * SampleFrequency)));
-	    // die 2.25° sind auch frequenzabhängig -> deshalb 
-	    // pkADW = -( (2.25*256.0 + pkADW * 12.288 * 566.4 * 360.0) * f / (256.0 * SampleFrequency));	
-	    // es sind 360.0 / (80 * 2)  bzw. 360 / ( 256 * 2) -> 360/ 2.0*samples 
-	    pkADW = -( ( (360.0*256.0 / (2.0*samples)) + pkADW * 12.288 * 566.4 * 360.0) * f / (256.0 * SampleFrequency));
-	    double pkSense = rangeSense->pJustData->m_pPhaseCorrection->getCorrection(f);
-	    Answer = QString::number(pkSense+pkADW);
-	}
-	else 
-	    Answer = ERRVALString; // error value
+            Answer = ERRVALString; // error value
     }
     else
     if (dedicatedsCValue == "COFFSET")
     {
-	Answer = QString::number(rangeSense->pJustData->m_pOffsetCorrection->getCorrection(1.0)); // parameter dummy
+        Answer = QString::number(rangeSense->pJustData->m_pOffsetCorrection->getCorrection(1.0)); // parameter dummy
     }
     
     return Answer.latin1();
@@ -2423,7 +2622,8 @@ const char* cWM3000uServer::SCPIQuery( SCPICmdType cmd, char* s) {
     case 		GetDeviceVersion:		return mGetDeviceVersion();
     case 		GetServerVersion:		return mGetServerVersion();  
     case 		GetAdjustmentStatus:	return mGetAdjustmentStatus();
-    case 		GetDeviceStatus:		return mGetDeviceStatus();	     
+    case 		GetDeviceStatus:		return mGetDeviceStatus();
+    case        GetAdjustmentVersion:
     case 		GetChannelStatus:		return mGetChannelStatus();
     case 		OutCValueCatalog:		return mOutCValueCatalog();
     case 		SetCalculateModel:	return mSetCalculateModel();

@@ -42,8 +42,10 @@
 #define DEBUG2 (DebugLevel & 2) // alle i2c aktivitäten loggen
 #define DEBUG3 (DebugLevel & 4) // alle client an-,abmeldungen
 
-#define ch0_n 14 /* anzahl bereiche für kanal 0 */
-#define ch1_n 18 /* anzahl bereiche für kanal 1 */
+
+
+//#define ch0_n 14 /* anzahl bereiche für kanal 0 */
+//#define ch1_n 18 /* anzahl bereiche für kanal 1 */
 
 enum hw_cmdcode {	hwGetSerialNr = 0x0001,	hwGetDevName = 0x0002,
 			hwGetCtrlVersion = 0x0003,	hwGetLCAVersion = 0x0004,
@@ -185,7 +187,8 @@ private:
     const char* mGetDebugLevel();
     const char* mGetDeviceVersion();
     const char* mGetServerVersion();  
-  
+    const char* mGetAdjustmentVersion();
+
     // die routinen für das status modell
     
     const char* mGetAdjustmentStatus();
@@ -241,11 +244,21 @@ private:
     int I2CBootloaderCommand(bl_cmd*);
     char* GenAdressPointerParameter(uchar adresspointerSize, ulong adr);
     
+    bool readJustFlash(QByteArray& jdata);
+    bool validJustData(QByteArray& jdata);
+    bool fetchJustData(QByteArray& jdata);
+    void fetchJustDataVersion(QByteArray& jdata);
+    bool jdvGreater(QString ver);
+    bool m_bNewJustData;
     bool ReadJustData();
+    void initJustData();
+    void SetDeviceRanges(bool force = false);
+    void ReadJustDataVersion();
     void setDefaultADCJustData(); // wenn die adc's noch nicht korrigiert wurden -> dann tun wir das hier mit default werten
     QString getFreqCode();
 
     Q_UINT16 m_nChksumFlash;
+    QString m_sJustDataVersion; // die serverversion mit der die justagedaten geschrieben wurden
     
     QStringList CValueList; // fürs dekodieren liste aller bereitgestellten korrekturwerte 
     QStringList CCoeffientList; // dito für die koeffizienten
