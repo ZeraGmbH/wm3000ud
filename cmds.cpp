@@ -51,6 +51,7 @@ cNodeSCPI* Status;
 	     
 cNodeSCPI* System;
                    cNodeSCPI* SystemVersion;
+                   cNodeSCPI* SystemVersionAdjustment;
 		           cNodeSCPI* SystemVersionServer;
 		           cNodeSCPI* SystemVersionDevice;	   
 		           cNodeSCPI* SystemVersionPCB;
@@ -127,8 +128,9 @@ cNode* InitCmdTree() {
     SystemVersionCTRL=new cNodeSCPI("CTRL",isQuery,SystemVersionLCA,NULL,nixCmd,GetCTRLVersion);
     SystemVersionPCB=new cNodeSCPI("PCB",isQuery | isCommand,SystemVersionCTRL,NULL,SetPCBVersion,GetPCBVersion);
     SystemVersionDevice=new cNodeSCPI("DEVICE",isQuery,SystemVersionPCB,NULL,nixCmd,GetDeviceVersion);
-    SystemVersionServer=new cNodeSCPI("SERVER",isQuery,SystemVersionDevice,NULL,nixCmd,GetServerVersion);  
-    SystemVersion=new cNodeSCPI("VERSION",isNode,SystemDebug,SystemVersionServer,nixCmd,nixCmd);	         
+    SystemVersionServer=new cNodeSCPI("SERVER",isQuery,SystemVersionDevice,NULL,nixCmd,GetServerVersion);
+    SystemVersionAdjustment=new cNodeSCPI("ADJUSTMENT",isQuery,SystemVersionServer,NULL,nixCmd,GetAdjustmentVersion);
+    SystemVersion=new cNodeSCPI("VERSION",isNode,SystemDebug,SystemVersionAdjustment,nixCmd,nixCmd);
     System=new cNodeSCPI("SYSTEM",isNode,MMemory,SystemVersion,nixCmd,nixCmd);	     
     
     // implementiertes status modell
@@ -166,7 +168,7 @@ cNode* InitCmdTree() {
    
     // implementiertes sense model    
  
-        SenseProtect=new cNodeSCPI("PROTECTION",isCommand | isQuery,NULL,NULL,SetProtection,GetProtection);
+    SenseProtect=new cNodeSCPI("PROTECTION",isCommand | isQuery,NULL,NULL,SetProtection,GetProtection);
     SenseCNameRangeCatalog=new cNodeSCPI("CATALOG",isQuery,NULL,NULL,nixCmd,OutRangeCatalog);
     SenseCNameRange=new cNodeSCPI("RANGE",isNode | isCommand | isQuery,NULL,SenseCNameRangeCatalog,SetRange,GetRange);
     SenseCNameClose=new cNodeSCPI("CLOSE",isCommand,SenseCNameRange,NULL,ChannelClose,nixCmd);

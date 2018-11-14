@@ -34,6 +34,7 @@ enum SCPICmdType  {	nixCmd, // 0 is nix
 			GetDebugLevel,
 			GetDeviceVersion,
 			GetServerVersion,
+            GetAdjustmentVersion,
 			
 			// die routinen für das status modell
 			
