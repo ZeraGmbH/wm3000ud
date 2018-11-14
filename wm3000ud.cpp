@@ -596,16 +596,7 @@ void cWM3000uServer::fetchJustDataVersion(QByteArray &jdata)
 
 bool cWM3000uServer::jdvGreater(QString ver)
 {
-    float actVersion;
-    float cmpVersion;
-    QString s;
-
-    s=m_sJustDataVersion.right(4);
-    actVersion = s.toFloat();
-    s = ver.right(4);
-    cmpVersion = s.toFloat();
-
-    return(actVersion > cmpVersion);
+    return (m_sJustDataVersion > ver);
 }
 
 
