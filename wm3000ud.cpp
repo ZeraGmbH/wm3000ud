@@ -675,6 +675,7 @@ void cWM3000uServer::ReadJustDataVersion()
         if (validJustData(JustData))
         {
             fetchJustDataVersion(JustData);
+            return;
         }
     }
 
