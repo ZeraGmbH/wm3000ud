@@ -2615,7 +2615,7 @@ const char* cWM3000uServer::SCPIQuery( SCPICmdType cmd, char* s) {
     case 		GetServerVersion:		return mGetServerVersion();  
     case 		GetAdjustmentStatus:	return mGetAdjustmentStatus();
     case 		GetDeviceStatus:		return mGetDeviceStatus();
-    case        GetAdjustmentVersion:
+    case        GetAdjustmentVersion:   return mGetAdjustmentVersion();
     case 		GetChannelStatus:		return mGetChannelStatus();
     case 		OutCValueCatalog:		return mOutCValueCatalog();
     case 		SetCalculateModel:	return mSetCalculateModel();
