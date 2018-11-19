@@ -140,17 +140,16 @@ cWM3000uServer::cWM3000uServer()
     cParse* parser = new(cParse); // das ist der parser
     pCmdInterpreter = new cCmdInterpreter(this,InitCmdTree(),parser); // das ist der kommando interpreter
     
-    MeasChannelList << "ch0" << "ch1";
-    CValueList << "CAMPLITUDE" << "CPHASE" << "COFFSET";
-
     ReadJustDataVersion();
     SetDeviceRanges(false);
 
-    ChannelRangeListMap["ch0"] = &Ch0RangeList;
-    ChannelRangeListMap["ch1"] = &Ch1RangeList;
+    MeasChannelList << "ch0" << "ch1";
+    CValueList << "CAMPLITUDE" << "CPHASE" << "COFFSET";
+
     ChannelCValueListMap["ch0"] = &CValueList; // die sensorik für beide kanäle ist gleich
     ChannelCValueListMap["ch1"] = &CValueList; // -> auch die gleichen korrekturwerte listen
-    CCoeffientList << "GCC0" << "GCC1" << "PCC0" << "PCC1" << "PCC2" << "PCC3" << "OCC0";  // wir brauchen hier nur eine für beide kanäle  
+
+    CCoeffientList << "GCC0" << "GCC1" << "PCC0" << "PCC1" << "PCC2" << "PCC3" << "OCC0";  // wir brauchen hier nur eine für beide kanäle
     ChannelCCoeffientListMap["ch0"] = &CCoeffientList; // s.o. beide gleich
     ChannelCCoeffientListMap["ch1"] = &CCoeffientList;
     
@@ -619,7 +618,7 @@ bool cWM3000uServer::ReadJustData()
 void cWM3000uServer::initJustData()
 {
     sRange* sr = ChannelRangeArrayMap["ch0"];
-    for (unsigned int i = 0; i<(sizeof(RangeCh0)/sizeof(sRange)); i++,sr++)
+    for (unsigned int i = 0; i<(arraySizeCh0/sizeof(sRange)); i++,sr++)
     {
         Ch0RangeList << sr->RName;
         sr->pJustData=new cWMJustData; // default justage werte
@@ -627,12 +626,15 @@ void cWM3000uServer::initJustData()
     }
 
     sr = ChannelRangeArrayMap["ch1"];
-    for (unsigned int i = 0; i<(sizeof(RangeCh1)/sizeof(sRange)); i++,sr++)
+    for (unsigned int i = 0; i<(arraySizeCh1/sizeof(sRange)); i++,sr++)
     {
         Ch1RangeList << sr->RName;
         sr->pJustData=new cWMJustData; // default justage werte
         sr->pOldJData=new cOldWMJustData; // dito
     }
+
+    ChannelRangeListMap["ch0"] = &Ch0RangeList;
+    ChannelRangeListMap["ch1"] = &Ch1RangeList;
 }
 
 
@@ -644,6 +646,8 @@ void cWM3000uServer::SetDeviceRanges(bool force)
         m_bNewJustData = true;
         ChannelRangeArrayMap["ch0"] = &RangeCh0V212[0]; // alle sRange* / kanal
         ChannelRangeArrayMap["ch1"] = &RangeCh1V212[0];
+        arraySizeCh0 = sizeof(RangeCh0V212);
+        arraySizeCh1 = sizeof(RangeCh1V212);
         initJustData();
         setDefaultADCJustData();
     }
@@ -652,6 +656,8 @@ void cWM3000uServer::SetDeviceRanges(bool force)
         m_bNewJustData = false;
         ChannelRangeArrayMap["ch0"] = &RangeCh0[0]; // alle sRange* / kanal
         ChannelRangeArrayMap["ch1"] = &RangeCh1[0];
+        arraySizeCh0 = sizeof(RangeCh0);
+        arraySizeCh1 = sizeof(RangeCh1);
         initJustData();
     }
 }

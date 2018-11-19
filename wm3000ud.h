@@ -256,6 +256,7 @@ private:
     void ReadJustDataVersion();
     void setDefaultADCJustData(); // wenn die adc's noch nicht korrigiert wurden -> dann tun wir das hier mit default werten
     QString getFreqCode();
+    int  arraySizeCh0, arraySizeCh1;
 
     Q_UINT16 m_nChksumFlash;
     QString m_sJustDataVersion; // die serverversion mit der die justagedaten geschrieben wurden
