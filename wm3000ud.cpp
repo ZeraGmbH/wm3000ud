@@ -141,7 +141,8 @@ cWM3000uServer::cWM3000uServer()
     pCmdInterpreter = new cCmdInterpreter(this,InitCmdTree(),parser); // das ist der kommando interpreter
     
     ReadJustDataVersion();
-    SetDeviceRanges(false);
+    SetDeviceRanges();
+    initJustData();
 
     MeasChannelList << "ch0" << "ch1";
     CValueList << "CAMPLITUDE" << "CPHASE" << "COFFSET";
@@ -635,21 +636,22 @@ void cWM3000uServer::initJustData()
 
     ChannelRangeListMap["ch0"] = &Ch0RangeList;
     ChannelRangeListMap["ch1"] = &Ch1RangeList;
+
+    if (m_bNewJustData)
+        setDefaultADCJustData();
 }
 
 
-void cWM3000uServer::SetDeviceRanges(bool force)
+void cWM3000uServer::SetDeviceRanges()
 {
-    if (jdvGreater(QString("V2.11")) || force)
-    {   // wenn wir neue justagedaten vorgefunden haben oder wenn befehl zum speichern kommt
-        // denn spätestens dann haben wir neue justagedaten
+    if (jdvGreater(QString("V2.11")) || EEPromAccessEnable())
+    {   // wenn wir neue justagedaten vorgefunden haben oder der justage stecker gesteckt ist
+        // dann haben wir neue justagedaten
         m_bNewJustData = true;
         ChannelRangeArrayMap["ch0"] = &RangeCh0V212[0]; // alle sRange* / kanal
         ChannelRangeArrayMap["ch1"] = &RangeCh1V212[0];
         arraySizeCh0 = sizeof(RangeCh0V212);
         arraySizeCh1 = sizeof(RangeCh1V212);
-        initJustData();
-        setDefaultADCJustData();
     }
     else
     {
@@ -658,7 +660,6 @@ void cWM3000uServer::SetDeviceRanges(bool force)
         ChannelRangeArrayMap["ch1"] = &RangeCh1[0];
         arraySizeCh0 = sizeof(RangeCh0);
         arraySizeCh1 = sizeof(RangeCh1);
-        initJustData();
     }
 }
 
@@ -729,6 +730,7 @@ void cWM3000uServer::setDefaultADCJustData()
                 rng->pJustData->m_pPhaseCorrection->setNode(j, cJustNode(liNodes[j*2], liNodes[j*2+1]));
 
             rng->pJustData->m_pPhaseCorrection->cmpCoefficients();
+            rng->pJustData->setStatus(80); // die werte sind justiert !!!
         }
 
     }
@@ -1175,8 +1177,10 @@ const char* cWM3000uServer::mEEProm2JustData(char* s) {
 	Answer = NACKString; // not acknowledge 	    
 	return Answer.latin1();
     }
-    if (ReadJustData()) Answer = ACKString;
-    else Answer = ERRMMEMString;
+    if (ReadJustData())
+        Answer = ACKString;
+    else
+        Answer = ERRMMEMString;
     return Answer.latin1();
 }
  
@@ -1190,11 +1194,6 @@ const char* cWM3000uServer::mJustData2EEProm(char* s) {
 	 Answer = ERRAUTString; // nicht erlaubt
 	 return Answer.latin1();
     }
-
-    // wenn wir einen speicher befehl erhalten haben wird in jedem falle das neue justagedaten format gewählt
-    SetDeviceRanges(true);
-    // und  wir lesen die daten nochmal denn eine bereits justierte wm wird mit dem neuen verfahren nur besser
-    ReadJustData();
 
     uint count=0;
     Q_UINT16 chksum=0;
@@ -1257,8 +1256,10 @@ const char* cWM3000uServer::mJustData2EEProm(char* s) {
     
     else
     {
-	ReadJustData();
-	Answer = ACKString;
+        if (ReadJustData())
+            Answer = ACKString;
+        else
+            Answer = ERRMMEMString; // geben aber eine fehlermeldung ab
     }
     
     return Answer.latin1();

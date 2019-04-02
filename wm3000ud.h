@@ -252,7 +252,7 @@ private:
     bool m_bNewJustData;
     bool ReadJustData();
     void initJustData();
-    void SetDeviceRanges(bool force = false);
+    void SetDeviceRanges();
     void ReadJustDataVersion();
     void setDefaultADCJustData(); // wenn die adc's noch nicht korrigiert wurden -> dann tun wir das hier mit default werten
     QString getFreqCode();
