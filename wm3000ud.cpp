@@ -1256,6 +1256,7 @@ const char* cWM3000uServer::mJustData2EEProm(char* s) {
     
     else
     {
+        usleep(6000);
         if (ReadJustData())
             Answer = ACKString;
         else
