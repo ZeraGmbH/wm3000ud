@@ -46,6 +46,8 @@
 // antwort auf das schreibkommando gesendet.
 // 3) beim initialisieren der justagewerte werden die korrekturwerte für adw's gesetzt und berechnet.
 // Und es werden die status dafür eingetragen.
+// V2.14 01.10.2020
+// bugfix beim initialisieren der justagedaten phasenkorrektur ist default 0.0 und nicht 1.0 !!!
 
 #ifndef WMGOBAL_H
 #define WMGLOBAL_H
@@ -54,7 +56,7 @@
 #define CheckSumOffset 56
 #define LeiterkartenName "wm3000u"
 #define ServerBasisName "wm3000ud"
-#define ServerVersion "V2.13"
+#define ServerVersion "V2.14"
 #define InpBufSize 4096
 #define atmelFlashfilePath "/opt/zera/bin/atmel.hex"
 #define atmelResetBit 16
