@@ -50,7 +50,7 @@ void cNInformation::SetDefault()
 
 cWMJustData::cWMJustData()
 {
-    m_pPhaseCorrection = new cJustData(PhaseCorrOrder, 1.0);
+    m_pPhaseCorrection = new cJustData(PhaseCorrOrder, 0.0);
     m_pGainCorrection = new cJustData(GainCorrOrder, 1.0); 
     m_pOffsetCorrection =  new cJustData(OffsetCorrOrder, 0.0);
     m_nStatus = 0; // nix justiert... nix kaputt
