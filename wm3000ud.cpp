@@ -2232,6 +2232,7 @@ const char* cWM3000uServer::mGetCValue(char* s) // abfrage des korrekturwertes (
             // es sind 360.0 / (80 * 2)  bzw. 360 / ( 256 * 2) -> 360/ 2.0*samples
             pkADW = -( ( (360.0*256.0 / (2.0*samples)) + pkADW * 12.288 * 566.4 * 360.0) * f / (256.0 * SampleFrequency));
             double pkSense = rangeSense->pJustData->m_pPhaseCorrection->getCorrection(f);
+            pkADW = 0.0;// temp. rechnen wir den adw phase wert
             Answer = QString::number(pkSense+pkADW);
         }
         else
