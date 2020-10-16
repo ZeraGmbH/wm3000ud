@@ -48,6 +48,8 @@
 // Und es werden die status dafür eingetragen.
 // V2.14 01.10.2020
 // bugfix beim initialisieren der justagedaten phasenkorrektur ist default 0.0 und nicht 1.0 !!!
+// V2.15 16.10.2020 wir stellen wieder um auf justage der phasenwinkel für die ad-wandler
+
 
 #ifndef WMGOBAL_H
 #define WMGLOBAL_H
@@ -56,7 +58,7 @@
 #define CheckSumOffset 56
 #define LeiterkartenName "wm3000u"
 #define ServerBasisName "wm3000ud"
-#define ServerVersion "V2.14"
+#define ServerVersion "V2.15"
 #define InpBufSize 4096
 #define atmelFlashfilePath "/opt/zera/bin/atmel.hex"
 #define atmelResetBit 16
