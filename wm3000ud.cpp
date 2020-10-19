@@ -751,10 +751,10 @@ void cWM3000uServer::setDefaultADCJustData()
                 int n = liNodes.count() >> 1; // wir unterstellen werte paare
 
                 for (int k = 0; k < n; k++)
-                    rng->pJustData->m_pOffsetCorrection->setNode(k, cJustNode(liNodes[k*2], liNodes[k*2+1]));
+                    rng->pJustData->m_pGainCorrection->setNode(k, cJustNode(liNodes[k*2], liNodes[k*2+1]));
 
-                rng->pJustData->m_pOffsetCorrection->cmpCoefficients();
-                rng->pJustData->setStatus(80); // die werte sind justiert !!!
+                rng->pJustData->m_pGainCorrection->cmpCoefficients();
+                //rng->pJustData->setStatus(80); // die werte sind justiert !!!
             }
         }
     }
@@ -2225,14 +2225,7 @@ const char* cWM3000uServer::mGetCValue(char* s) // abfrage des korrekturwertes (
         double ampl = par.toDouble(&ok);
         if (ok)
         {
-            if (m_bNewJustData)
-            {
-                // wir benutzen den offset korrektur eintrag um den frequenzabhängigen verstärkungsfehler
-                // ad wandlers zu kompensieren .... nicht ganz fein ....
-                Answer = QString::number(rangeADW->pJustData->m_pOffsetCorrection->getCorrection(SignalFrequency) * rangeSense->pJustData->m_pGainCorrection->getCorrection(ampl)); // acknowledge
-            }
-            else
-                Answer = QString::number(rangeADW->pJustData->m_pGainCorrection->getCorrection(ampl) * rangeSense->pJustData->m_pGainCorrection->getCorrection(ampl)); // acknowledge
+            Answer = QString::number(rangeADW->pJustData->m_pGainCorrection->getCorrection(SignalFrequency) * rangeSense->pJustData->m_pGainCorrection->getCorrection(ampl)); // acknowledge
         }
         else
             Answer = ERRVALString; // error value
