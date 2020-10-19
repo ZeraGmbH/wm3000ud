@@ -10,7 +10,7 @@
 
 enum jDataStatus { wrongVERS = 2, wrongSNR = 4};
 
-const int GainCorrOrder = 1;
+const int GainCorrOrder = 3;
 const int PhaseCorrOrder  = 3;
 const int OffsetCorrOrder = 0;
 	
