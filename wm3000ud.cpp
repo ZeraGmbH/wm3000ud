@@ -203,11 +203,12 @@ cWM3000uServer::cWM3000uServer()
     ReadJustData(); // wir lesen die justagedaten
 
     if (!getAdjustment() && EEPromAccessEnable())
-    { // wenn gerät nicht justiert ist und der justagestecker steckt ......
+    {   // wenn gerät nicht justiert ist und der justagestecker steckt ......
         setDefaultADCJustData();
+        if (jdvGreater("V2.13"))
+            setDefaultRangeJustData();
+            // weil sich die bedeutung der justageeinträge geändert hat, wird alles neu justiert.
     }
-
-
 
 }
 
@@ -763,6 +764,22 @@ void cWM3000uServer::setDefaultADCJustData()
                 // wir müssen eh noch phasenjustage laufen lassen ....
             }
         }
+    }
+}
+
+
+void cWM3000uServer::setDefaultRangeJustData()
+{
+    sRange* sr = ChannelRangeArrayMap["ch0"];
+    for (unsigned int i = 0; i<(arraySizeCh0/sizeof(sRange)); i++,sr++)
+    {
+        sr->pJustData->setDefault();
+    }
+
+    sr = ChannelRangeArrayMap["ch1"];
+    for (unsigned int i = 0; i<(arraySizeCh1/sizeof(sRange)); i++,sr++)
+    {
+        sr->pJustData->setDefault();
     }
 }
 

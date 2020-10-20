@@ -256,6 +256,8 @@ private:
     void SetDeviceRanges();
     void ReadJustDataVersion();
     void setDefaultADCJustData(); // wenn die adc's noch nicht korrigiert wurden -> dann tun wir das hier mit default werten
+    void setDefaultRangeJustData(); //
+
     QString getFreqCode();
     int  arraySizeCh0, arraySizeCh1;
 
