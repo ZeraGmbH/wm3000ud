@@ -67,6 +67,7 @@ public:
     void DeserializeStatus(const QString&);
     void setStatus(int stat);
     int getStatus();
+    void setDefault();
     
 private:    
     int m_nStatus;
