@@ -160,9 +160,10 @@ cWM3000uServer::cWM3000uServer()
     cParse* parser = new(cParse); // das ist der parser
     pCmdInterpreter = new cCmdInterpreter(this,InitCmdTree(),parser); // das ist der kommando interpreter
     
-    ReadJustDataVersion();
-    SetDeviceRanges();
-    initJustData();
+    ReadJustDataVersion(); // wir lesen die version wenn möglich
+    SetDeviceRanges(); // und setzen die bereichlisten versions abhängig
+
+    // das lesen der justagedaten erfolgt weiter unten
 
     MeasChannelList << "ch0" << "ch1";
     CValueList << "CAMPLITUDE" << "CPHASE" << "COFFSET";
@@ -199,7 +200,15 @@ cWM3000uServer::cWM3000uServer()
     RangeTranslationMap["E5V"] = "E5.0V";
     RangeTranslationMap["E1V"] = "E1.0V";
      
-    ReadJustData();
+    ReadJustData(); // wir lesen die justagedaten
+
+    if (!getAdjustment() && EEPromAccessEnable())
+    { // wenn gerät nicht justiert ist und der justagestecker steckt ......
+        setDefaultADCJustData();
+    }
+
+
+
 }
 
 
@@ -636,32 +645,6 @@ bool cWM3000uServer::ReadJustData()
 }
 
 
-void cWM3000uServer::initJustData()
-{
-    sRange* sr = ChannelRangeArrayMap["ch0"];
-    for (unsigned int i = 0; i<(arraySizeCh0/sizeof(sRange)); i++,sr++)
-    {
-        Ch0RangeList << sr->RName;
-        sr->pJustData=new cWMJustData; // default justage werte
-        sr->pOldJData=new cOldWMJustData; // dito
-    }
-
-    sr = ChannelRangeArrayMap["ch1"];
-    for (unsigned int i = 0; i<(arraySizeCh1/sizeof(sRange)); i++,sr++)
-    {
-        Ch1RangeList << sr->RName;
-        sr->pJustData=new cWMJustData; // default justage werte
-        sr->pOldJData=new cOldWMJustData; // dito
-    }
-
-    ChannelRangeListMap["ch0"] = &Ch0RangeList;
-    ChannelRangeListMap["ch1"] = &Ch1RangeList;
-
-    if (m_bNewJustData)
-        setDefaultADCJustData();
-}
-
-
 void cWM3000uServer::SetDeviceRanges()
 {
     if (jdvGreater(QString("V2.11")) || EEPromAccessEnable())
@@ -681,6 +664,28 @@ void cWM3000uServer::SetDeviceRanges()
         arraySizeCh0 = sizeof(RangeCh0);
         arraySizeCh1 = sizeof(RangeCh1);
     }
+
+    // wir generiren die justage objekte für die bereiche
+
+    sRange* sr = ChannelRangeArrayMap["ch0"];
+    for (unsigned int i = 0; i<(arraySizeCh0/sizeof(sRange)); i++,sr++)
+    {
+        Ch0RangeList << sr->RName;
+        sr->pJustData=new cWMJustData; // default justage werte
+        sr->pOldJData=new cOldWMJustData; // dito
+    }
+
+    sr = ChannelRangeArrayMap["ch1"];
+    for (unsigned int i = 0; i<(arraySizeCh1/sizeof(sRange)); i++,sr++)
+    {
+        Ch1RangeList << sr->RName;
+        sr->pJustData=new cWMJustData; // default justage werte
+        sr->pOldJData=new cOldWMJustData; // dito
+    }
+
+    ChannelRangeListMap["ch0"] = &Ch0RangeList;
+    ChannelRangeListMap["ch1"] = &Ch1RangeList;
+
 }
 
 
@@ -744,7 +749,7 @@ void cWM3000uServer::setDefaultADCJustData()
             QString rname;
             rname = keyList.at(j);
             sRange* rng = SearchRange(channel, rname);
-            if ((rng != 0) && (rng->pJustData->getStatus() == 0)) // wenn der adw bereich nicht justiert ist
+            if (rng != 0)
             {
                 QList<double> liNodes;
                 liNodes = corrNodeHash[rname];
@@ -754,7 +759,8 @@ void cWM3000uServer::setDefaultADCJustData()
                     rng->pJustData->m_pGainCorrection->setNode(k, cJustNode(liNodes[k*2], liNodes[k*2+1]));
 
                 rng->pJustData->m_pGainCorrection->cmpCoefficients();
-                //rng->pJustData->setStatus(80); // die werte sind justiert !!!
+                rng->pJustData->setStatus(0); // die werte sind erst einmal nicht justiert
+                // wir müssen eh noch phasenjustage laufen lassen ....
             }
         }
     }
@@ -1662,21 +1668,33 @@ const char *cWM3000uServer::mGetAdjustmentVersion()
 }
 
 
-const char* cWM3000uServer::mGetAdjustmentStatus() {
+bool cWM3000uServer::getAdjustment()
+{
     bool adjusted = true;
-    int adj;
-    for (QStringList::iterator it=MeasChannelList.begin(); it !=MeasChannelList.end(); it++) {	   		QStringList* sl=ChannelRangeListMap.find(*it).data(); 
-	QStringList::Iterator it3;
-	for ( it3 = sl->begin(); it3 != sl->end(); ++it3 ) {
-	    sRange* rng = SearchRange(*it,*it3);
-	    adjusted = adjusted && ( (rng -> pJustData -> getStatus() & (RangeGainJustified + RangePhaseJustified))  == (RangeGainJustified + RangePhaseJustified) );
-	}
+
+    for (QStringList::iterator it=MeasChannelList.begin(); it !=MeasChannelList.end(); it++)
+    {
+        QStringList* sl=ChannelRangeListMap.find(*it).data();
+        QStringList::Iterator it3;
+        for ( it3 = sl->begin(); it3 != sl->end(); ++it3 )
+        {
+            sRange* rng = SearchRange(*it,*it3);
+            adjusted = adjusted && ( (rng -> pJustData -> getStatus() & (RangeGainJustified + RangePhaseJustified))  == (RangeGainJustified + RangePhaseJustified) );
+        }
     }
+
+    return adjusted;
+}
+
+
+const char* cWM3000uServer::mGetAdjustmentStatus()
+{
+    int adj;
     
-    if (adjusted)
-	adj = 0;
+    if (getAdjustment())
+        adj = 0;
     else
-	adj = 1;
+        adj = 1;
     
     adj += m_nJDataStat;
     
@@ -1684,6 +1702,7 @@ const char* cWM3000uServer::mGetAdjustmentStatus() {
     
     return Answer.latin1();
 }
+
 
 const char* cWM3000uServer::mGetDeviceStatus() {
     if (Test4HWPresent()) Answer = "avail";

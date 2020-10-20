@@ -191,6 +191,8 @@ private:
 
     // die routinen für das status modell
     
+    bool getAdjustment();
+
     const char* mGetAdjustmentStatus();
     const char* mGetDeviceStatus();	     
     const char* mGetChannelStatus();
@@ -251,7 +253,6 @@ private:
     bool jdvGreater(QString ver);
     bool m_bNewJustData;
     bool ReadJustData();
-    void initJustData();
     void SetDeviceRanges();
     void ReadJustDataVersion();
     void setDefaultADCJustData(); // wenn die adc's noch nicht korrigiert wurden -> dann tun wir das hier mit default werten
