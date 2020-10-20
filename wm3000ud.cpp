@@ -204,10 +204,11 @@ cWM3000uServer::cWM3000uServer()
 
     if (m_bNewJustData && !getAdjustment() && EEPromAccessEnable())
     {   // wenn gerät nicht justiert ist und der justagestecker steckt ......
-        setDefaultADCJustData();
         if (!jdvGreater("V2.14"))
             setDefaultRangeJustData();
             // weil sich die bedeutung der justageeinträge geändert hat, wird alles neu justiert.
+
+        setDefaultADCJustData();
     }
 
 }
