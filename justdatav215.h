@@ -1,18 +1,15 @@
-// header datei justdata.h
-// klassen deklaration rund ums justieren
-
-#ifndef JUSTDATA_H
-#define JUSTDATA_H
+#ifndef JUSTDATAV215_H
+#define JUSTDATAV215_H
 
 #include <qdatastream.h>
 #include <q3textstream.h>
 
 #include "justdatabase.h"
 
-class cJustData: public cJustDataBase { // klasse für justage koeffizienten und stützstellen altes format
+class cJustDataV215:public cJustDataBase { // klasse für justage koeffizienten und stützstellen altes format
 public:
-    cJustData(int order,double init);
-    virtual ~cJustData();
+    cJustDataV215(int order,double init);
+    virtual ~cJustDataV215();
     virtual void Serialize(QDataStream&); // zum schreiben der justagedaten in flashspeicher
     virtual void Deserialize(QDataStream&); // reicht eine routine für koeffizienten und nodes
     virtual void setStatus(int);
@@ -20,7 +17,10 @@ public:
 
     virtual QString SerializeStatus();
     virtual void DeserializeStatus(QString);
+
+
+private:
+    int m_nStatus; // der status wird nur bei den neueren justage werten ab V2.15 verwendet
 };
 
-
-#endif
+#endif // JUSTDATAV215_H

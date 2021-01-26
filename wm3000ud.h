@@ -15,7 +15,7 @@
 #include <qdom.h>
 
 
-#include "wmjustdata.h"
+#include "wmjustdatabase.h"
 #include "zhserver.h"
 #include "wmscpi.h"
 
@@ -115,8 +115,7 @@ struct sRange {
         char  RSelCode;                 // Range Selection Code (only for internal use)
         char RType;                     // Volt, Ampere.....
         char RSpec;                     // phsys, log, virt
-        cWMJustData* pJustData;         // Zeiger auf Justierdaten
-        cOldWMJustData* pOldJData;      // Zeiger auf alte Justierdaten
+        cWMJustDataBase* pJustData;         // Zeiger auf Justierdaten
 };
 
 
@@ -206,6 +205,12 @@ private:
    const char* mGetCValue(char*); // abfrage des korrekturwertes (ev. mit parameter)
    const char* mSetStatus( char*);
    const char* mGetStatus();
+   const char* mSetGainStatus(char* s);
+   const char* mGetGainStatus();
+   const char* mSetPhaseStatus(char*s);
+   const char* mGetPhaseStatus();
+   const char* mSetOffsetStatus(char *s);
+   const char* mGetOffsetStatus();
    const char* mSetCValueCCoefficient( char* );
    const char* mGetCValueCCoefficient();
    const char* mGetCValueCCoefficientName();
@@ -251,12 +256,12 @@ private:
     bool fetchJustData(QByteArray& jdata);
     void fetchJustDataVersion(QByteArray& jdata);
     bool jdvGreater(QString ver);
+    bool jdvNewest();
     bool m_bNewJustData;
     bool ReadJustData();
     void SetDeviceRanges();
-    void ReadJustDataVersion();
+    bool ReadJustDataVersion();
     void setDefaultADCJustData(); // wenn die adc's noch nicht korrigiert wurden -> dann tun wir das hier mit default werten
-    void setDefaultRangeJustData(); //
 
     QString getFreqCode();
     int  arraySizeCh0, arraySizeCh1;
@@ -277,7 +282,8 @@ private:
     tChannelListMap ChannelCNodeListMap; // pro kanal eine liste mit stützstellen namen
     tChannelSockListMap ChannelSockListMap; // pro kanal eine liste der clients (sockets)  die ein open ausgeführt haben
     tRangeTranslationMap RangeTranslationMap;
-    
+    sRange dummy; // wir brauchen einen dummy kanal zum "absaugen" nicht gültiger justagedaten
+
     QString sI2CDevNode; 
     int I2CSlaveAdr;
     int I2CMasterAdr;

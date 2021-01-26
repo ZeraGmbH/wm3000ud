@@ -1,17 +1,15 @@
-// header datei wmjustdata.h
-
-#ifndef WMJUSTDATA_H
-#define WMJUSTDATA_H
+#ifndef WMJUSTDATAV215_H
+#define WMJUSTDATAV215_H
 
 #include <qdatastream.h>
 #include <q3textstream.h>
 #include "wmjustdatabase.h"
 
 
-class cWMJustData:public cWMJustDataBase { // alle korrekturdaten für einen bereich + status
+class cWMJustDataV215:public cWMJustDataBase { // alle korrekturdaten für einen bereich + status
 public:
-    cWMJustData();
-    ~cWMJustData();
+    cWMJustDataV215();
+    ~cWMJustDataV215();
 
     void Serialize(QDataStream&); // zum schreiben aller justagedaten in flashspeicher
     void Deserialize(QDataStream&); // zum lesen aller justagedaten aus flashspeicher
@@ -19,13 +17,9 @@ public:
     virtual QString SerializeStatus(); // für den xml export
     virtual void DeserializeStatus(QString);
 
-    virtual int getStatus(); // gibt den status der justage zurück 80 (64+16) = justiert
-    virtual void setStatus(int stat);
+    virtual void setStatus(int);
+    virtual int getStatus(); // gibt den gesamt status der justage zurück 1 = justiert 0 nicht justiert
 
-private:
-    int m_nStatus;
 };
 
-
-#endif
-
+#endif // WMJUSTDATAV215_H
