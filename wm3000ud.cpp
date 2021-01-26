@@ -2841,6 +2841,9 @@ const char* cWM3000uServer::SCPICmd( SCPICmdType cmd, char* s) {
     case 	SetCValueCNode:		return mSetCValueCNode(s);
     case	CmpCCoefficient:		return mCmpCCoefficient(s);
     case   SetStatus:		return mSetStatus(s);	
+    case   SetGStatus:		return mSetGainStatus(s);
+    case   SetPStatus:		return mSetPhaseStatus(s);
+    case   SetOStatus:		return mSetOffsetStatus(s);
     case   SetRange:		return mSetRange(s);
     case	SetProtection:		return mSetProtection(s);
     case   ChannelClose:		return mChannelClose(s);
