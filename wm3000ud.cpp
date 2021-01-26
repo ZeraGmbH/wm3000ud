@@ -1757,7 +1757,7 @@ bool cWM3000uServer::getAdjustment()
         for ( it3 = sl->begin(); it3 != sl->end(); ++it3 )
         {
             sRange* rng = SearchRange(*it,*it3);
-            adjusted = adjusted && ( (rng -> pJustData -> getStatus() & (RangeGainJustified + RangePhaseJustified))  == (RangeGainJustified + RangePhaseJustified) );
+            adjusted = adjusted && (rng->pJustData->getStatus() > 0); // fragt den gesamt status (gain,phase,offset)
         }
     }
 
