@@ -17,7 +17,11 @@ HEADERS	+= scpi.h \
 	crcutils.h \
 	intelhexfileio.h \
 	justdata.h \
-	gaussmatrix.h
+	gaussmatrix.h \
+        justdatabase.h \
+    wmjustdatabase.h \
+    wmjustdatav215.h \
+    justdatav215.h
 
 SOURCES	+= scpi.cpp \
 	parse.cpp \
@@ -32,7 +36,10 @@ SOURCES	+= scpi.cpp \
 	crcutils.cpp \
 	intelhexfileio.cpp \
 	justdata.cpp \
-	gaussmatrix.cpp
+	gaussmatrix.cpp \
+    justdatabase.cpp \
+    wmjustdatav215.cpp \
+    justdatav215.cpp
 
 unix {
   UI_DIR = .ui

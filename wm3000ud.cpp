@@ -25,6 +25,7 @@
 #include "zeraglobal.h"
 #include "wmuglobal.h"
 #include "wmjustdata.h"
+#include "wmjustdatav215.h"
 #include "cmdinterpret.h"
 #include "zhserver.h"
 #include "wm3000ud.h"
@@ -40,83 +41,89 @@ extern cNode* InitCmdTree();
 
 
 static sRange RangeCh0[10]=
-                  {{"ADW80"  ,"ADW80"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
-                   {"ADW256" ,"ADW256"  ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
+                  {{"ADW80"  ,"ADW80"   ,"500000"  ,255,  Volt , rngVirt, NULL},
+                   {"ADW256" ,"ADW256"  ,"500000"  ,255,  Volt , rngVirt, NULL},
 
-                   {"480V"   ,"480.0"   ,"4730418"  ,0 ,  Volt, rngPhys, NULL, NULL},
-                   { "240V"  ,"240.0"   ,"4730418"  ,1 , Volt, rngPhys,NULL, NULL},
-                   { "120V"  ,"120.0"   ,"4730418"  ,2 , Volt, rngPhys,NULL, NULL},
-                   { "60V"   , "60.0"   ,"4730418"  ,3 , Volt, rngPhys,NULL, NULL},
-                   { "30V"     ,"30.0"   ,"47304180"  ,4 , Volt, rngPhys,NULL, NULL},
-                   { "15V"     ,"15.0"   ,"4730418"  ,5 , Volt, rngPhys,NULL, NULL},
-                   { "7.5V"    ,"7.5"     ,"4730418"  ,6 , Volt, rngPhys,NULL, NULL},
-                   { "3.75V"  ,"3.75"   ,"4730418"  ,7 , Volt, rngPhys,NULL, NULL}};
+                   {"480V"   ,"480.0"   ,"4730418"  ,0 ,  Volt, rngPhys, NULL},
+                   { "240V"  ,"240.0"   ,"4730418"  ,1 , Volt, rngPhys,NULL},
+                   { "120V"  ,"120.0"   ,"4730418"  ,2 , Volt, rngPhys,NULL},
+                   { "60V"   , "60.0"   ,"4730418"  ,3 , Volt, rngPhys,NULL},
+                   { "30V"     ,"30.0"   ,"47304180"  ,4 , Volt, rngPhys,NULL},
+                   { "15V"     ,"15.0"   ,"4730418"  ,5 , Volt, rngPhys,NULL},
+                   { "7.5V"    ,"7.5"     ,"4730418"  ,6 , Volt, rngPhys,NULL},
+                   { "3.75V"  ,"3.75"   ,"4730418"  ,7 , Volt, rngPhys,NULL}};
 
 
 static sRange RangeCh1[20]=
-                  {{"ADW80"  ,"ADW80"  ,"500000"  ,255,    Volt, rngVirt, NULL, NULL},
-                   {"ADW256"  ,"ADW256"  ,"500000"  ,255,    Volt, rngVirt,NULL, NULL},
+                  {{"ADW80"  ,"ADW80"  ,"500000"  ,255,    Volt, rngVirt, NULL},
+                   {"ADW256"  ,"ADW256"  ,"500000"  ,255,    Volt, rngVirt,NULL},
 
-                   {"480V"   ,"480.0" ,"4730418"  ,0 ,   Volt, rngPhys,NULL, NULL},
-                   { "240V"   ,"240.0" ,"4730418"  ,1 ,  Volt, rngPhys,NULL, NULL},
-                   { "120V"   ,"120.0" ,"4730418"  ,2 ,  Volt, rngPhys,NULL, NULL},
-                   { "60V"     ,"60.0"  ,"4730418"  ,3 ,  Volt, rngPhys,NULL, NULL},
-                   { "30V"     ,"30.0"  ,"4730418"  ,4 ,  Volt, rngPhys,NULL, NULL},
-                   { "15V"     ,"15.0"  ,"4730418"  ,5 ,  Volt, rngPhys,NULL, NULL},
-                   { "7.5V"    ,"7.5"    ,"4730418"  ,6 ,  Volt, rngPhys,NULL, NULL},
-                   { "3.75V"  ,"3.75"  ,"4730418"  ,7 ,  Volt, rngPhys,NULL, NULL},
+                   {"480V"   ,"480.0" ,"4730418"  ,0 ,   Volt, rngPhys,NULL},
+                   { "240V"   ,"240.0" ,"4730418"  ,1 ,  Volt, rngPhys,NULL},
+                   { "120V"   ,"120.0" ,"4730418"  ,2 ,  Volt, rngPhys,NULL},
+                   { "60V"     ,"60.0"  ,"4730418"  ,3 ,  Volt, rngPhys,NULL},
+                   { "30V"     ,"30.0"  ,"4730418"  ,4 ,  Volt, rngPhys,NULL},
+                   { "15V"     ,"15.0"  ,"4730418"  ,5 ,  Volt, rngPhys,NULL},
+                   { "7.5V"    ,"7.5"    ,"4730418"  ,6 ,  Volt, rngPhys,NULL},
+                   { "3.75V"  ,"3.75"  ,"4730418"  ,7 ,  Volt, rngPhys,NULL},
 
-                   { "E15.0V"    , "15.0"   ,"2831155" ,10 , Volt, rngPhys,NULL, NULL},
-                   { "E10.0V"    , "10.0"   ,"4718592" ,11 , Volt, rngPhys,NULL, NULL},
-                   { "E5.0V"      ,"5.0"      ,"4718592" ,12,Volt, rngPhys,NULL, NULL},
-                   { "E2.5V"   ,"2.5"      ,"4718592" ,13,Volt, rngPhys,NULL, NULL},
-                   { "E1.0V"      , "1.0"     ,"4718592" ,14,Volt, rngPhys,NULL, NULL},
-                   { "E500mV", "0.5"     ,"2995931" ,15,Volt, rngPhys,NULL, NULL},
-                   { "E250mV", "0.25"   ,"2995931" ,16,Volt, rngPhys,NULL, NULL},
-                   { "E100mV", "0.1"     ,"2995931" ,17,Volt, rngPhys,NULL, NULL},
-                   { "E50mV"  , "0.05"   ,"2995931" ,18,Volt, rngPhys,NULL, NULL},
-                   { "E25mV"  , "0.025" ,"2995931" ,19,Volt, rngPhys,NULL, NULL}};
+                   { "E15.0V"    , "15.0"   ,"2831155" ,10 , Volt, rngPhys,NULL},
+                   { "E10.0V"    , "10.0"   ,"4718592" ,11 , Volt, rngPhys,NULL},
+                   { "E5.0V"      ,"5.0"      ,"4718592" ,12,Volt, rngPhys,NULL},
+                   { "E2.5V"   ,"2.5"      ,"4718592" ,13,Volt, rngPhys,NULL},
+                   { "E1.0V"      , "1.0"     ,"4718592" ,14,Volt, rngPhys,NULL},
+                   { "E500mV", "0.5"     ,"2995931" ,15,Volt, rngPhys,NULL},
+                   { "E250mV", "0.25"   ,"2995931" ,16,Volt, rngPhys,NULL},
+                   { "E100mV", "0.1"     ,"2995931" ,17,Volt, rngPhys,NULL},
+                   { "E50mV"  , "0.05"   ,"2995931" ,18,Volt, rngPhys,NULL},
+                   { "E25mV"  , "0.025" ,"2995931" ,19,Volt, rngPhys,NULL}};
 
 
 static sRange RangeCh0V212[14]=
-                  {{"ADW80.16"  ,"ADW80.16"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
-                   {"ADW80.50"  ,"ADW80.50"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
-                   {"ADW80.60"  ,"ADW80.60"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
+                  {{"ADW80.16"  ,"ADW80.16"   ,"500000"  ,255,  Volt , rngVirt, NULL},
+                   {"ADW80.50"  ,"ADW80.50"   ,"500000"  ,255,  Volt , rngVirt, NULL},
+                   {"ADW80.60"  ,"ADW80.60"   ,"500000"  ,255,  Volt , rngVirt, NULL},
 
-                   {"ADW256.16"  ,"ADW256.16"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
-                   {"ADW256.50"  ,"ADW256.50"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
-                   {"ADW256.60"  ,"ADW256.60"   ,"500000"  ,255,  Volt , rngVirt, NULL, NULL},
-			       
-                   {"480V"   ,"480.0"  ,"4730418"  ,0 ,  Volt, rngPhys, NULL, NULL},
- 			       { "240V"   ,"240.0"  ,"4730418"  ,1 , Volt, rngPhys,NULL, NULL},
-			       { "120V"   ,"120.0"  ,"4730418"  ,2 , Volt, rngPhys,NULL, NULL},
-			       { "60V"     ,"60.0"   ,"4730418"  ,3 , Volt, rngPhys,NULL, NULL},
-			       { "30V"     ,"30.0"   ,"47304180"  ,4 , Volt, rngPhys,NULL, NULL},
-			       { "15V"     ,"15.0"   ,"4730418"  ,5 , Volt, rngPhys,NULL, NULL},
-			       { "7.5V"    ,"7.5"     ,"4730418"  ,6 , Volt, rngPhys,NULL, NULL},
-			       { "3.75V"  ,"3.75"   ,"4730418"  ,7 , Volt, rngPhys,NULL, NULL}};
+                   {"ADW256.16"  ,"ADW256.16" ,"500000"  ,255,  Volt , rngVirt, NULL},
+                   {"ADW256.50"  ,"ADW256.50" ,"500000"  ,255,  Volt , rngVirt, NULL},
+                   {"ADW256.60"  ,"ADW256.60" ,"500000"  ,255,  Volt , rngVirt, NULL},
+
+                   /*   mal schauen .......
+                   {"ADW96.50"  ,"ADW96.50"   ,"500000"  ,255,  Volt , rngVirt, NULL},
+                   {"ADW288.50" ,"ADW288.50"  ,"500000"  ,255,  Volt , rngVirt, NULL},
+                   {"ADW240.60" ,"ADW240.60"  ,"500000"  ,255,  Volt , rngVirt, NULL},
+                   */
+
+                   {"480V"   ,"480.0"  ,"4730418"  ,0 ,  Volt, rngPhys, NULL},
+                   { "240V"   ,"240.0"  ,"4730418"  ,1 , Volt, rngPhys,NULL},
+                   { "120V"   ,"120.0"  ,"4730418"  ,2 , Volt, rngPhys,NULL},
+                   { "60V"     ,"60.0"   ,"4730418"  ,3 , Volt, rngPhys,NULL},
+                   { "30V"     ,"30.0"   ,"47304180"  ,4 , Volt, rngPhys,NULL},
+                   { "15V"     ,"15.0"   ,"4730418"  ,5 , Volt, rngPhys,NULL},
+                   { "7.5V"    ,"7.5"     ,"4730418"  ,6 , Volt, rngPhys,NULL},
+                   { "3.75V"  ,"3.75"   ,"4730418"  ,7 , Volt, rngPhys,NULL}};
 
 
 static sRange RangeCh1V212[18]=
-                  {{"480V"   ,"480.0" ,"4730418"  ,0 ,   Volt, rngPhys,NULL, NULL},
-			       { "240V"   ,"240.0" ,"4730418"  ,1 ,  Volt, rngPhys,NULL, NULL},
-                   { "120V"   ,"120.0" ,"4730418"  ,2 ,  Volt, rngPhys,NULL, NULL},
-                   { "60V"     ,"60.0"  ,"4730418"  ,3 ,  Volt, rngPhys,NULL, NULL},
-			       { "30V"     ,"30.0"  ,"4730418"  ,4 ,  Volt, rngPhys,NULL, NULL},
-			       { "15V"     ,"15.0"  ,"4730418"  ,5 ,  Volt, rngPhys,NULL, NULL},
-			       { "7.5V"    ,"7.5"    ,"4730418"  ,6 ,  Volt, rngPhys,NULL, NULL},
-			       { "3.75V"  ,"3.75"  ,"4730418"  ,7 ,  Volt, rngPhys,NULL, NULL},
+                  {{"480V"   ,"480.0" ,"4730418"  ,0 ,   Volt, rngPhys,NULL},
+                   { "240V"   ,"240.0" ,"4730418"  ,1 ,  Volt, rngPhys,NULL},
+                   { "120V"   ,"120.0" ,"4730418"  ,2 ,  Volt, rngPhys,NULL},
+                   { "60V"     ,"60.0"  ,"4730418"  ,3 ,  Volt, rngPhys,NULL},
+                   { "30V"     ,"30.0"  ,"4730418"  ,4 ,  Volt, rngPhys,NULL},
+                   { "15V"     ,"15.0"  ,"4730418"  ,5 ,  Volt, rngPhys,NULL},
+                   { "7.5V"    ,"7.5"    ,"4730418"  ,6 ,  Volt, rngPhys,NULL},
+                   { "3.75V"  ,"3.75"  ,"4730418"  ,7 ,  Volt, rngPhys,NULL},
 			       
-			       { "E15.0V"    , "15.0"   ,"2831155" ,10 , Volt, rngPhys,NULL, NULL},
-			       { "E10.0V"    , "10.0"   ,"4718592" ,11 , Volt, rngPhys,NULL, NULL},
-			       { "E5.0V"      ,"5.0"      ,"4718592" ,12,Volt, rngPhys,NULL, NULL},
-			       { "E2.5V"   ,"2.5"      ,"4718592" ,13,Volt, rngPhys,NULL, NULL},
-			       { "E1.0V"      , "1.0"     ,"4718592" ,14,Volt, rngPhys,NULL, NULL},
-			       { "E500mV", "0.5"     ,"2995931" ,15,Volt, rngPhys,NULL, NULL},
-			       { "E250mV", "0.25"   ,"2995931" ,16,Volt, rngPhys,NULL, NULL},
-			       { "E100mV", "0.1"     ,"2995931" ,17,Volt, rngPhys,NULL, NULL},
-			       { "E50mV"  , "0.05"   ,"2995931" ,18,Volt, rngPhys,NULL, NULL},
-			       { "E25mV"  , "0.025" ,"2995931" ,19,Volt, rngPhys,NULL, NULL}};
+                   { "E15.0V"    , "15.0"   ,"2831155" ,10 , Volt, rngPhys,NULL},
+                   { "E10.0V"    , "10.0"   ,"4718592" ,11 , Volt, rngPhys,NULL},
+                   { "E5.0V"      ,"5.0"      ,"4718592" ,12,Volt, rngPhys,NULL},
+                   { "E2.5V"   ,"2.5"      ,"4718592" ,13,Volt, rngPhys,NULL},
+                   { "E1.0V"      , "1.0"     ,"4718592" ,14,Volt, rngPhys,NULL},
+                   { "E500mV", "0.5"     ,"2995931" ,15,Volt, rngPhys,NULL},
+                   { "E250mV", "0.25"   ,"2995931" ,16,Volt, rngPhys,NULL},
+                   { "E100mV", "0.1"     ,"2995931" ,17,Volt, rngPhys,NULL},
+                   { "E50mV"  , "0.05"   ,"2995931" ,18,Volt, rngPhys,NULL},
+                   { "E25mV"  , "0.025" ,"2995931" ,19,Volt, rngPhys,NULL}};
 
 
 QStringList MeasChannelList;
@@ -139,10 +146,6 @@ cWM3000uServer::cWM3000uServer()
 
     cParse* parser = new(cParse); // das ist der parser
     pCmdInterpreter = new cCmdInterpreter(this,InitCmdTree(),parser); // das ist der kommando interpreter
-    
-    ReadJustDataVersion();
-    SetDeviceRanges();
-    initJustData();
 
     MeasChannelList << "ch0" << "ch1";
     CValueList << "CAMPLITUDE" << "CPHASE" << "COFFSET";
@@ -179,7 +182,45 @@ cWM3000uServer::cWM3000uServer()
     RangeTranslationMap["E5V"] = "E5.0V";
     RangeTranslationMap["E1V"] = "E1.0V";
      
-    ReadJustData();
+    if (!ReadJustDataVersion())
+    // wenn wir die version nicht lesen konnten .... nehmen wir die neue
+    // lesen aber keine daten weil das eh nicht funktionieren wird
+    {
+        m_sJustDataVersion = ServerVersion;
+        SetDeviceRanges();
+    }
+    else
+    {
+        if (EEPromAccessEnable())
+        {
+            if (jdvNewest())
+            {
+                // die justage daten haben schon die neueste version , also Bereiche setzen
+                // und daten lesen
+                SetDeviceRanges();
+                ReadJustData();
+            }
+            else
+            {
+                // ist der justage stecker gesteckt, erzwingen wir die neue Version
+                // setzen die bereiche entsprechend, aber wir können die daten aber nicht mehr lesen
+                m_sJustDataVersion = ServerVersion;
+                SetDeviceRanges();
+            }
+
+        }
+        else
+        {
+           // wir konnten die version lesen, dann setzen wir die bereiche entsprechend
+           // und lesen die justage daten, die sollten ja jetzt zur jeweiligen version passen
+           SetDeviceRanges();
+           ReadJustData();
+        }
+    }
+
+    if (jdvGreater("V2.11")) // ab V2.12 haben wir die adc gain korrekturkurven
+        setDefaultADCJustData(); // umd die können wir default setzen weil die konstant bleiben
+
 }
 
 
@@ -491,8 +532,6 @@ bool cWM3000uServer::fetchJustData(QByteArray &jdata)
 
             bastream >> count;
 
-            sRange dummy;
-            dummy.pJustData=new cWMJustData; // default justage werte
             for (uint i=0;i<count;i++)
             {
                 bastream >> s;
@@ -509,62 +548,11 @@ bool cWM3000uServer::fetchJustData(QByteArray &jdata)
                     rng = &dummy; // nach dummy
                 rng->pJustData->Deserialize(bastream); // justagedaten  (koeffizienten, stützstellen und status
             }
-            delete dummy.pJustData;
         }
     }
     else
     {
-        while (!bastream.atEnd())
-        {
-            bastream >> s;
-            QString chname=s; // für welchen kanal
-
-            bastream >> count;
-            sRange dummy;
-            dummy.pOldJData=new cOldWMJustData;
-            for (uint i=0;i<count;i++)
-            {
-                bastream >> s;
-                QString rngname=s; // für welchen bereich
-                sRange* rng = SearchRange(chname,rngname);
-                sRange dummy;
-                if (!rng)
-                {
-                    // wenn wir den bereich nicht gefunden haben
-                    rngname = RangeTranslationMap[rngname]; // prüfen wir ob der bereichname
-                    rng = SearchRange(chname,rngname); // übersetzt werden muss
-                } // und ob wir dann den bereich finden
-
-                if (!rng)
-                    rng = &dummy;
-                rng->pOldJData->m_JData.Deserialize(bastream); // justagedaten
-                rng->pOldJData->m_NInfo.Deserialize(bastream); // stützstellen
-            }
-            delete dummy.pOldJData;
-        }
-
-        // wir haben die alten justage daten jetzt müssen wir sie noch umwandeln
-        for (QStringList::iterator it=MeasChannelList.begin(); it !=MeasChannelList.end(); it++)
-        {
-            QStringList* sl=ChannelRangeListMap.find(*it).data();
-            QStringList::Iterator it2;
-            for ( it2 = sl->begin(); it2 != sl->end(); ++it2 )
-            {
-                sRange* rng = SearchRange(*it,*it2);
-                rng->pJustData->setStatus( rng->pOldJData->m_JData.m_Status); // status übernommen
-                rng->pJustData->m_pOffsetCorrection->setCoefficient(0, rng->pOldJData->m_JData.m_OffsetCorrection);
-                rng->pJustData->m_pOffsetCorrection->setNode(0, cJustNode(rng->pOldJData->m_JData.m_OffsetCorrection, 0.0)); // offset korrektur übernommen
-
-                rng->pJustData->m_pGainCorrection->setCoefficient(0, rng->pOldJData->m_JData.m_GainCorrection);
-                rng->pJustData->m_pGainCorrection->setNode(0, cJustNode(rng->pOldJData->m_JData.m_GainCorrection, 0.0)); // gain korrektur übernommen
-
-                for (int i = 0; i < 4; i++)
-                {
-                    rng->pJustData->m_pPhaseCorrection->setCoefficient(i, rng->pOldJData->m_JData.m_PhaseCoefficient[3-i]); // koeffizienten stehen im neuen format anders sortiert
-                    rng->pJustData->m_pPhaseCorrection->setNode(i, cJustNode(rng->pOldJData->m_NInfo.m_NInformation[i*2+1],rng->pOldJData->m_NInfo.m_NInformation[i*2])); // phase korrektur übernommen
-                }
-            }
-        }
+        return false; // V0.00 kann nicht sein !!!
     }
 
     return(true);
@@ -600,6 +588,12 @@ bool cWM3000uServer::jdvGreater(QString ver)
 }
 
 
+bool cWM3000uServer::jdvNewest()
+{
+    return (m_sJustDataVersion == ServerVersion);
+}
+
+
 bool cWM3000uServer::ReadJustData()
 {
     QByteArray JustData;
@@ -616,55 +610,63 @@ bool cWM3000uServer::ReadJustData()
 }
 
 
-void cWM3000uServer::initJustData()
+void cWM3000uServer::SetDeviceRanges()
 {
-    sRange* sr = ChannelRangeArrayMap["ch0"];
-    for (unsigned int i = 0; i<(arraySizeCh0/sizeof(sRange)); i++,sr++)
-    {
-        Ch0RangeList << sr->RName;
-        sr->pJustData=new cWMJustData; // default justage werte
-        sr->pOldJData=new cOldWMJustData; // dito
-    }
+    sRange* sr;
 
-    sr = ChannelRangeArrayMap["ch1"];
-    for (unsigned int i = 0; i<(arraySizeCh1/sizeof(sRange)); i++,sr++)
+    if (jdvGreater("V2.11"))
+    {   // wenn wir neuere justagedaten vorgefunden haben oder der justage stecker gesteckt ist
+        ChannelRangeArrayMap["ch0"] = &RangeCh0V212[0]; // alle sRange* / kanal
+        ChannelRangeArrayMap["ch1"] = &RangeCh1V212[0];
+        sr = ChannelRangeArrayMap["ch0"];
+        for (unsigned int i = 0; i<(sizeof(RangeCh0V212)/sizeof(sRange)); i++,sr++)
+        {
+            Ch0RangeList << sr->RName;
+            if (jdvGreater("V2.14"))
+                sr->pJustData=new cWMJustDataV215(); // default justage werte
+            else
+                sr->pJustData=new cWMJustData();
+        }
+        sr = ChannelRangeArrayMap["ch1"];
+        for (unsigned int i = 0; i<(sizeof(RangeCh1V212)/sizeof(sRange)); i++,sr++)
+        {
+            Ch1RangeList << sr->RName;
+            if (jdvGreater("V2.14"))
+                sr->pJustData=new cWMJustDataV215(); // default justage werte
+            else
+                sr->pJustData=new cWMJustData();
+        }
+
+        if (jdvGreater("V2.14"))
+            dummy.pJustData = new cWMJustDataV215();
+        else
+            dummy.pJustData = new cWMJustData();
+    }
+    else
     {
-        Ch1RangeList << sr->RName;
-        sr->pJustData=new cWMJustData; // default justage werte
-        sr->pOldJData=new cOldWMJustData; // dito
+        ChannelRangeArrayMap["ch0"] = &RangeCh0[0]; // alle sRange* / kanal
+        ChannelRangeArrayMap["ch1"] = &RangeCh1[0];
+        sr = ChannelRangeArrayMap["ch0"];
+        for (unsigned int i = 0; i<(sizeof(RangeCh0)/sizeof(sRange)); i++,sr++)
+        {
+            Ch0RangeList << sr->RName;
+            sr->pJustData=new cWMJustData; // default justage werte
+        }
+        sr = ChannelRangeArrayMap["ch1"];
+        for (unsigned int i = 0; i<(sizeof(RangeCh1)/sizeof(sRange)); i++,sr++)
+        {
+            Ch1RangeList << sr->RName;
+            sr->pJustData=new cWMJustData; // default justage werte
+        }
+        dummy.pJustData = new cWMJustData();
     }
 
     ChannelRangeListMap["ch0"] = &Ch0RangeList;
     ChannelRangeListMap["ch1"] = &Ch1RangeList;
-
-    if (m_bNewJustData)
-        setDefaultADCJustData();
 }
 
 
-void cWM3000uServer::SetDeviceRanges()
-{
-    if (jdvGreater(QString("V2.11")) || EEPromAccessEnable())
-    {   // wenn wir neue justagedaten vorgefunden haben oder der justage stecker gesteckt ist
-        // dann haben wir neue justagedaten
-        m_bNewJustData = true;
-        ChannelRangeArrayMap["ch0"] = &RangeCh0V212[0]; // alle sRange* / kanal
-        ChannelRangeArrayMap["ch1"] = &RangeCh1V212[0];
-        arraySizeCh0 = sizeof(RangeCh0V212);
-        arraySizeCh1 = sizeof(RangeCh1V212);
-    }
-    else
-    {
-        m_bNewJustData = false;
-        ChannelRangeArrayMap["ch0"] = &RangeCh0[0]; // alle sRange* / kanal
-        ChannelRangeArrayMap["ch1"] = &RangeCh1[0];
-        arraySizeCh0 = sizeof(RangeCh0);
-        arraySizeCh1 = sizeof(RangeCh1);
-    }
-}
-
-
-void cWM3000uServer::ReadJustDataVersion()
+bool cWM3000uServer::ReadJustDataVersion()
 {
     QByteArray JustData;
     m_nJDataStat = 0; // status erst mal reset
@@ -673,19 +675,16 @@ void cWM3000uServer::ReadJustDataVersion()
         if (validJustData(JustData))
         {
             fetchJustDataVersion(JustData);
-            return;
+            return true;
         }
     }
-
-    // wenn wir nichts lesen konnten dann nehmen wir das neue format
-    m_sJustDataVersion = ServerVersion;
+    return false;
 }
 
 
 void cWM3000uServer::setDefaultADCJustData()
 {
     QList<QString> keyList;
-    QString channel;
     QHash<QString, QList<double> > corrNodeHash;
 
     QList<double> li8016;
@@ -712,27 +711,37 @@ void cWM3000uServer::setDefaultADCJustData()
     li25660 << 0.999405 << 0.1 << 0.999621 << 40.0 << 0.999770 << 50.0 << 0.999970 << 60.61;
     corrNodeHash["ADW256.60"] = li25660;
 
-    channel = "ch0";
     keyList = corrNodeHash.keys();
 
     for (int i = 0; i < keyList.count(); i++)
     {
+        QString channel = "ch0";
         QString rname;
         rname = keyList.at(i);
         sRange* rng = SearchRange(channel, rname);
-        if ((rng != 0) && (rng->pJustData->getStatus() == 0)) // wenn der adw bereich nicht justiert ist
+        if (rng != 0)
         {
             QList<double> liNodes;
             liNodes = corrNodeHash[rname];
             int n = liNodes.count() >> 1; // wir unterstellen werte paare
 
-            for (int j = 0; j < n; j++)
-                rng->pJustData->m_pPhaseCorrection->setNode(j, cJustNode(liNodes[j*2], liNodes[j*2+1]));
+            if (jdvGreater("V2.14"))
+            {
+                for (int j = 0; j < n; j++)
+                    rng->pJustData->m_pGainCorrection->setNode(j, cJustNode(liNodes[j*2], liNodes[j*2+1]));
+                rng->pJustData->m_pGainCorrection->cmpCoefficients();
+                rng->pJustData->m_pGainCorrection->setStatus(1); // die werte sind justiert
+                rng->pJustData->m_pOffsetCorrection->setStatus(1); // adc's haben keinen offset -> justiert
+            }
+            else
+            {
+                for (int j = 0; j < n; j++)
+                    rng->pJustData->m_pPhaseCorrection->setNode(j, cJustNode(liNodes[j*2], liNodes[j*2+1]));
 
-            rng->pJustData->m_pPhaseCorrection->cmpCoefficients();
-            rng->pJustData->setStatus(80); // die werte sind justiert !!!
+                rng->pJustData->m_pPhaseCorrection->cmpCoefficients();
+                rng->pJustData->setStatus(80); // die werte sind justiert !!!
+            }
         }
-
     }
 }
 
@@ -758,93 +767,116 @@ sRange* cWM3000uServer::SearchRange(QString& ch,QString& rng) { // holt einen ze
     return(lr);
 }
 
-bool cWM3000uServer::GetAdjInfo(QDomNode n) { // n steht auf einem element dessen tagname channel ist
-    typedef QMap<QString,cWMJustData*> tRangeJustMap; // zur temporären speicherung von justagedaten
+
+bool cWM3000uServer::GetAdjInfo(QDomNode n) // n steht auf einem element dessen tagname channel ist
+{
+    typedef QMap<QString,cWMJustDataBase*> tRangeJustMap; // zur temporären speicherung von justagedaten
     tRangeJustMap RangeJustMap;
     tChannelListMap::Iterator it=NULL;
-    tChannelListMap::Iterator itNULL = NULL;
-    QStringList* sl = NULL;
+    tChannelListMap::Iterator itNULL=NULL;
+    QStringList* sl =NULL;
     QStringList::iterator it2;
     QString ch;
-    
+
     QDomNodeList nl=n.childNodes();
     tRangeJustMap::iterator it4;
-    
-    for (uint i=0; i<nl.length(); i++) {
-	QDomNode n=nl.item(i);
-	QDomElement e=n.toElement();
-	QString tName=e.tagName();
-	if (tName=="Name") {
-            if (it != itNULL) return(false); // kanal name mehr als 1x ist ein fehler
-	    ch=e.text();
-	    tChannelListMap::Iterator it=ChannelRangeListMap.find(ch);
-	    if (it==ChannelRangeListMap.end()) return(false); // den kanal gibt es nicht, auch ein fehler
-	    sl=it.data();
-	    for (it2 = sl->begin(); it2 != sl->end() ; it2++) RangeJustMap[*it2]=new cWMJustData(); // default daten bei import
-	} else
-	if (tName=="Range") {
-	    QDomNodeList nl2=n.childNodes(); // nl2 ist eine qdomnode liste mit allen nodes unterhalb "Range"  
-	    QString rname;
-	    for (uint j=0; j<nl2.length(); j++) {
-		n=nl2.item(j);
-		QDomElement e2=n.toElement();
-		QString tName2=e2.tagName();
-		if (tName2=="Name") { 
-		    rname=e2.text();		    
-		} else
-		    
-	              if (tName2=="Status") {    
-		    it4=RangeJustMap.find(rname);
-		    if (it4 != RangeJustMap.end() ) { // den bereich gibts
-			cWMJustData* jwmd=it4.data();
-			jwmd->DeserializeStatus(e2.text());
-		    }
-		}
-		    
-		if (tName2 == "Gain" || tName2 == "Phase" || tName2 == "Offset") {    
-		    it4=RangeJustMap.find(rname);
-		    if (it4 != RangeJustMap.end() ) { // den bereich gibts
-			cWMJustData* jwmd=it4.data();
-			cJustData* jd=NULL;
-			if (tName2 == "Gain")
-			    jd = jwmd->m_pGainCorrection;
-			if (tName2 == "Phase")
-			    jd = jwmd->m_pPhaseCorrection;
-			if (tName2 == "Offset")
-			    jd = jwmd->m_pOffsetCorrection;
-			QDomNodeList nl3=n.childNodes();
-			QDomNode n2;
-			QDomElement e3;
-			QString tName3;
-			for (uint k=0;k<nl3.length(); k++) {
-			    n2 = nl3.item(k);
-			    e3=n2.toElement();
-			    tName3=e3.tagName();
-			    if (tName3 == "Coefficients") {
-				if (jd)
-					jd->DeserializeCoefficients(e3.text());
-			    }
-			    if (tName3 == "Nodes") {
-				if (jd)
-					jd->DeserializeNodes(e3.text());
-			    }
-			}
-		    }
-		}
 
-	    }
-	}
+    for (uint i=0; i<nl.length(); i++)
+    {
+        QDomNode n=nl.item(i);
+        QDomElement e=n.toElement();
+        QString tName=e.tagName();
+        if (tName=="Name")
+        {
+            if (it != itNULL)
+                return(false); // kanal name mehr als 1x ist ein fehler
+            ch=e.text();
+            tChannelListMap::Iterator it=ChannelRangeListMap.find(ch);
+            if (it==ChannelRangeListMap.end())
+                return(false); // den kanal gibt es nicht, auch ein fehler
+            sl=it.data();
+            if (jdvGreater("V2.14"))
+                for (it2 = sl->begin(); it2 != sl->end() ; it2++) RangeJustMap[*it2]=new cWMJustDataV215(); // default daten bei import
+            else
+                for (it2 = sl->begin(); it2 != sl->end() ; it2++) RangeJustMap[*it2]=new cWMJustData();
+        }
+        else
+        if (tName=="Range")
+        {
+            QDomNodeList nl2=n.childNodes(); // nl2 ist eine qdomnode liste mit allen nodes unterhalb "Range"
+            QString rname;
+            for (uint j=0; j<nl2.length(); j++)
+            {
+                n=nl2.item(j);
+                QDomElement e2=n.toElement();
+                QString tName2=e2.tagName();
+                if (tName2=="Name")
+                {
+                    rname=e2.text();
+                }
+                else
+                if (tName2=="Status")
+                // wenn wir auf der ebene status finden machen wir nichts damit
+                // es handelt sich um einen eintrag im alten format. da wir den xml
+                // import nur zulassen wenn der justagestecker steckt... das gerät ist
+                // also im hause, und mit justagestecker haben wir schon alles für
+                // das neue justageformat vorbereitet.
+                {
+                }
+                else
+                if (tName2 == "Gain" || tName2 == "Phase" || tName2 == "Offset")
+                {
+                    it4=RangeJustMap.find(rname);
+                    if (it4 != RangeJustMap.end() )
+                    { // den bereich gibts
+                        cWMJustDataBase* jwmd=it4.data();
+                        cJustDataBase* jd = NULL;
+                        if (tName2 == "Gain")
+                            jd = jwmd->m_pGainCorrection;
+                        if (tName2 == "Phase")
+                            jd = jwmd->m_pPhaseCorrection;
+                        if (tName2 == "Offset")
+                            jd = jwmd->m_pOffsetCorrection;
+                        QDomNodeList nl3=n.childNodes();
+                        QDomNode n2;
+                        QDomElement e3;
+                        QString tName3;
+                        for (uint k=0;k<nl3.length(); k++)
+                        {
+                            n2 = nl3.item(k);
+                            e3=n2.toElement();
+                            tName3=e3.tagName();
+                            if (tName3 == "Status")
+                            {
+                            if (jd)
+                                jd->DeserializeStatus(e3.text());
+                            }
+                            if (tName3 == "Coefficients")
+                            {
+                            if (jd)
+                                jd->DeserializeCoefficients(e3.text());
+                            }
+                            if (tName3 == "Nodes")
+                            {
+                            if (jd)
+                                jd->DeserializeNodes(e3.text());
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
-	
-    if (sl) 	
+    if (sl)
     {
-    	tChannelRangeArrayMap::Iterator it3=ChannelRangeArrayMap.find(ch);
-    	sRange* srdest=it3.data();
-    	for (it2 = sl->begin(); it2 != sl->end() ; it2++,srdest++) {
-		it4=RangeJustMap.find(*it2);
-		*(srdest->pJustData) = *(it4.data());
-    	}
+        tChannelRangeArrayMap::Iterator it3=ChannelRangeArrayMap.find(ch);
+        sRange* srdest=it3.data();
+        for (it2 = sl->begin(); it2 != sl->end() ; it2++,srdest++)
+        {
+            it4=RangeJustMap.find(*it2);
+            *(srdest->pJustData) = *(it4.data());
+        }
     }
     return (true);
 }
@@ -1047,130 +1079,206 @@ const char* cWM3000uServer::mFile2Justdata(char* s) {
 
 const char* cWM3000uServer::mJustData2File(char* s) {
     QDomDocument justdata( "WM3000UAdjustmentData" );
-    
+
     QDomElement pcbtag = justdata.createElement( "PCB" );
     justdata.appendChild( pcbtag );
-    
+
     QDomElement tag = justdata.createElement( "Type" );
     pcbtag.appendChild( tag );
     QDomText t = justdata.createTextNode( LeiterkartenName );
     tag.appendChild( t );
-        
+
     tag = justdata.createElement( "VersionNumber" );
     pcbtag.appendChild( tag );
     t = justdata.createTextNode( sDeviceVersion );
     tag.appendChild( t );
-   
+
     tag = justdata.createElement( "SerialNumber" );
     pcbtag.appendChild( tag );
     t = justdata.createTextNode( sSerialNumber );
     tag.appendChild( t );
-    
+
     tag = justdata.createElement( "Date" );
     pcbtag.appendChild( tag );
     QDate d=DateTime.date();
     t = justdata.createTextNode(d.toString(Qt::TextDate));
     tag.appendChild( t );
-		
+
     tag = justdata.createElement( "Time" );
     pcbtag.appendChild( tag );
     QTime ti=DateTime.time();
     t = justdata.createTextNode(ti.toString(Qt::TextDate));
     tag.appendChild( t );
-    
+
     QDomElement adjtag = justdata.createElement( "Adjustment" );
     pcbtag.appendChild( adjtag );
-    
+
     QDomElement chksumtag = justdata.createElement("Chksum");
     adjtag.appendChild(chksumtag);
     t = justdata.createTextNode(QString("0x%1").arg(m_nChksumFlash,0,16));
     chksumtag.appendChild(t);
-    
-    for (QStringList::iterator it=MeasChannelList.begin(); it !=MeasChannelList.end(); it++) {
-	QDomElement chtag = justdata.createElement( "Channel" );
-	adjtag.appendChild( chtag );
-	
-	tag = justdata.createElement( "Name" );
-	chtag.appendChild( tag );
-	t = justdata.createTextNode(*it);
-	tag.appendChild( t );
-	
-	QStringList* sl=ChannelRangeListMap.find(*it).data(); 
-	QStringList::Iterator it3;
-	for ( it3 = sl->begin(); it3 != sl->end(); ++it3 ) {
-	    sRange* rng = SearchRange(*it,*it3);
-	    QDomElement rtag = justdata.createElement( "Range" );
-	    chtag.appendChild( rtag );
-	    tag = justdata.createElement( "Name" );
-	    rtag.appendChild( tag );
-	    t = justdata.createTextNode(rng->RName);
-	    tag.appendChild( t );
-	    
-	    
-	    tag = justdata.createElement( "Status" );
-	    rtag.appendChild( tag );
-	    QString jdata = rng->pJustData->SerializeStatus();
-	    t = justdata.createTextNode(jdata);
-	    tag.appendChild(t);
-		    
-	    QDomElement gpotag = justdata.createElement( "Gain" );
-	    rtag.appendChild(gpotag);    
-	    tag = justdata.createElement( "Coefficients" );
-	    gpotag.appendChild(tag);
-	    jdata = rng->pJustData->m_pGainCorrection->SerializeCoefficients();
-	    t = justdata.createTextNode(jdata);
-	    tag.appendChild(t);
-	    tag = justdata.createElement( "Nodes" );
-	    gpotag.appendChild(tag);
-	    jdata = rng->pJustData->m_pGainCorrection->SerializeNodes();
-	    t = justdata.createTextNode(jdata);
-	    tag.appendChild(t);
-	    
-	    gpotag = justdata.createElement( "Phase" );
-	    rtag.appendChild(gpotag);    
-	    tag = justdata.createElement( "Coefficients" );
-	    gpotag.appendChild(tag);
-	    jdata = rng->pJustData->m_pPhaseCorrection->SerializeCoefficients();
-	    t = justdata.createTextNode(jdata);
-	    tag.appendChild(t);
-	    tag = justdata.createElement( "Nodes" );
-	    gpotag.appendChild(tag);
-	    jdata = rng->pJustData->m_pPhaseCorrection->SerializeNodes();
-	    t = justdata.createTextNode(jdata);
-	    tag.appendChild(t);
-	    
-	    gpotag = justdata.createElement( "Offset" );
-	    rtag.appendChild(gpotag);    
-	    tag = justdata.createElement( "Coefficients" );
-	    gpotag.appendChild(tag);
-	    jdata = rng->pJustData->m_pOffsetCorrection->SerializeCoefficients();
-	    t = justdata.createTextNode(jdata);
-	    tag.appendChild(t);
-	    tag = justdata.createElement( "Nodes" );
-	    gpotag.appendChild(tag);
-	    jdata = rng->pJustData->m_pOffsetCorrection->SerializeNodes();
-	    t = justdata.createTextNode(jdata);
-	    tag.appendChild(t);
-	}
+
+    for (QStringList::iterator it=MeasChannelList.begin(); it !=MeasChannelList.end(); it++)
+    {
+        QDomElement chtag = justdata.createElement( "Channel" );
+        adjtag.appendChild( chtag );
+
+        tag = justdata.createElement( "Name" );
+        chtag.appendChild( tag );
+        t = justdata.createTextNode(*it);
+        tag.appendChild( t );
+
+        QStringList* sl=ChannelRangeListMap.find(*it).data();
+        QStringList::Iterator it3;
+        for ( it3 = sl->begin(); it3 != sl->end(); ++it3 )
+        {
+            QString jdata;
+            sRange* rng = SearchRange(*it,*it3);
+            QDomElement rtag = justdata.createElement( "Range" );
+            chtag.appendChild( rtag );
+            tag = justdata.createElement( "Name" );
+            rtag.appendChild( tag );
+            t = justdata.createTextNode(rng->RName);
+            tag.appendChild( t );
+
+            if (jdvGreater("V2.14"))
+            {
+                QDomElement gpotag = justdata.createElement( "Gain" );
+                rtag.appendChild(gpotag);
+                tag = justdata.createElement( "Status" );
+                gpotag.appendChild(tag);
+                jdata = rng->pJustData->m_pGainCorrection->SerializeStatus();
+                t = justdata.createTextNode(jdata);
+                tag.appendChild(t);
+                tag = justdata.createElement( "Coefficients" );
+                gpotag.appendChild(tag);
+                jdata = rng->pJustData->m_pGainCorrection->SerializeCoefficients();
+                t = justdata.createTextNode(jdata);
+                tag.appendChild(t);
+                tag = justdata.createElement( "Nodes" );
+                gpotag.appendChild(tag);
+                jdata = rng->pJustData->m_pGainCorrection->SerializeNodes();
+                t = justdata.createTextNode(jdata);
+                tag.appendChild(t);
+
+                gpotag = justdata.createElement( "Phase" );
+                rtag.appendChild(gpotag);
+                tag = justdata.createElement( "Status" );
+                gpotag.appendChild(tag);
+                jdata = rng->pJustData->m_pPhaseCorrection->SerializeStatus();
+                t = justdata.createTextNode(jdata);
+                tag.appendChild(t);
+                tag = justdata.createElement( "Coefficients" );
+                gpotag.appendChild(tag);
+                jdata = rng->pJustData->m_pPhaseCorrection->SerializeCoefficients();
+                t = justdata.createTextNode(jdata);
+                tag.appendChild(t);
+                tag = justdata.createElement( "Nodes" );
+                gpotag.appendChild(tag);
+                jdata = rng->pJustData->m_pPhaseCorrection->SerializeNodes();
+                t = justdata.createTextNode(jdata);
+                tag.appendChild(t);
+
+                gpotag = justdata.createElement( "Offset" );
+                rtag.appendChild(gpotag);
+                tag = justdata.createElement( "Status" );
+                gpotag.appendChild(tag);
+                jdata = rng->pJustData->m_pOffsetCorrection->SerializeStatus();
+                t = justdata.createTextNode(jdata);
+                tag.appendChild(t);
+                tag = justdata.createElement( "Coefficients" );
+                gpotag.appendChild(tag);
+                jdata = rng->pJustData->m_pOffsetCorrection->SerializeCoefficients();
+                t = justdata.createTextNode(jdata);
+                tag.appendChild(t);
+                tag = justdata.createElement( "Nodes" );
+                gpotag.appendChild(tag);
+                jdata = rng->pJustData->m_pOffsetCorrection->SerializeNodes();
+                t = justdata.createTextNode(jdata);
+                tag.appendChild(t);
+            }
+            else
+            {
+                // wir müssen auch alte daten als xml speichern können
+                // wir wollen vielleicht im nachgang justagedaten dokumentieren
+                QStringList* sl=ChannelRangeListMap.find(*it).data();
+                QStringList::Iterator it3;
+                for ( it3 = sl->begin(); it3 != sl->end(); ++it3 ) {
+                    sRange* rng = SearchRange(*it,*it3);
+                    QDomElement rtag = justdata.createElement( "Range" );
+                    chtag.appendChild( rtag );
+                    tag = justdata.createElement( "Name" );
+                    rtag.appendChild( tag );
+                    t = justdata.createTextNode(rng->RName);
+                    tag.appendChild( t );
+
+
+                    tag = justdata.createElement( "Status" );
+                    rtag.appendChild( tag );
+                    QString jdata = rng->pJustData->SerializeStatus();
+                    t = justdata.createTextNode(jdata);
+                    tag.appendChild(t);
+
+                    QDomElement gpotag = justdata.createElement( "Gain" );
+                    rtag.appendChild(gpotag);
+                    tag = justdata.createElement( "Coefficients" );
+                    gpotag.appendChild(tag);
+                    jdata = rng->pJustData->m_pGainCorrection->SerializeCoefficients();
+                    t = justdata.createTextNode(jdata);
+                    tag.appendChild(t);
+                    tag = justdata.createElement( "Nodes" );
+                    gpotag.appendChild(tag);
+                    jdata = rng->pJustData->m_pGainCorrection->SerializeNodes();
+                    t = justdata.createTextNode(jdata);
+                    tag.appendChild(t);
+
+                    gpotag = justdata.createElement( "Phase" );
+                    rtag.appendChild(gpotag);
+                    tag = justdata.createElement( "Coefficients" );
+                    gpotag.appendChild(tag);
+                    jdata = rng->pJustData->m_pPhaseCorrection->SerializeCoefficients();
+                    t = justdata.createTextNode(jdata);
+                    tag.appendChild(t);
+                    tag = justdata.createElement( "Nodes" );
+                    gpotag.appendChild(tag);
+                    jdata = rng->pJustData->m_pPhaseCorrection->SerializeNodes();
+                    t = justdata.createTextNode(jdata);
+                    tag.appendChild(t);
+
+                    gpotag = justdata.createElement( "Offset" );
+                    rtag.appendChild(gpotag);
+                    tag = justdata.createElement( "Coefficients" );
+                    gpotag.appendChild(tag);
+                    jdata = rng->pJustData->m_pOffsetCorrection->SerializeCoefficients();
+                    t = justdata.createTextNode(jdata);
+                    tag.appendChild(t);
+                    tag = justdata.createElement( "Nodes" );
+                    gpotag.appendChild(tag);
+                    jdata = rng->pJustData->m_pOffsetCorrection->SerializeNodes();
+                    t = justdata.createTextNode(jdata);
+                    tag.appendChild(t);
+                }
+            }
+        }
     }
-    
+
     QString xml = justdata.toString();
     QString filename = pCmdInterpreter->m_pParser->GetKeyword(&s); // holt den parameter aus dem kommando
     filename+=".xml";
-    
+
     QFile file(filename);
     if ( file.open( QIODevice::WriteOnly ) ) {
-	Q3TextStream stream( &file );
-	stream << xml;
-	file.close();
-	Answer = ACKString;
-	return Answer.latin1();
+    Q3TextStream stream( &file );
+    stream << xml;
+    file.close();
+    Answer = ACKString;
+    return Answer.latin1();
     }
     if DEBUG1 syslog(LOG_ERR,"justdata export, could not open xml file\n");
     Answer = ERRPATHString;
     return Answer.latin1();
 }
- 
+
 
 const char* cWM3000uServer::mEEProm2JustData(char* s) {
      if (pCmdInterpreter->m_pParser->GetChar(&s) ) { // schau mal nach ob noch was kommt
@@ -1638,21 +1746,33 @@ const char *cWM3000uServer::mGetAdjustmentVersion()
 }
 
 
-const char* cWM3000uServer::mGetAdjustmentStatus() {
+bool cWM3000uServer::getAdjustment()
+{
     bool adjusted = true;
-    int adj;
-    for (QStringList::iterator it=MeasChannelList.begin(); it !=MeasChannelList.end(); it++) {	   		QStringList* sl=ChannelRangeListMap.find(*it).data(); 
-	QStringList::Iterator it3;
-	for ( it3 = sl->begin(); it3 != sl->end(); ++it3 ) {
-	    sRange* rng = SearchRange(*it,*it3);
-	    adjusted = adjusted && ( (rng -> pJustData -> getStatus() & (RangeGainJustified + RangePhaseJustified))  == (RangeGainJustified + RangePhaseJustified) );
-	}
+
+    for (QStringList::iterator it=MeasChannelList.begin(); it !=MeasChannelList.end(); it++)
+    {
+        QStringList* sl=ChannelRangeListMap.find(*it).data();
+        QStringList::Iterator it3;
+        for ( it3 = sl->begin(); it3 != sl->end(); ++it3 )
+        {
+            sRange* rng = SearchRange(*it,*it3);
+            adjusted = adjusted && (rng->pJustData->getStatus() > 0); // fragt den gesamt status (gain,phase,offset)
+        }
     }
+
+    return adjusted;
+}
+
+
+const char* cWM3000uServer::mGetAdjustmentStatus()
+{
+    int adj;
     
-    if (adjusted)
-	adj = 0;
+    if (getAdjustment())
+        adj = 0;
     else
-	adj = 1;
+        adj = 1;
     
     adj += m_nJDataStat;
     
@@ -1660,6 +1780,7 @@ const char* cWM3000uServer::mGetAdjustmentStatus() {
     
     return Answer.latin1();
 }
+
 
 const char* cWM3000uServer::mGetDeviceStatus() {
     if (Test4HWPresent()) Answer = "avail";
@@ -2164,52 +2285,159 @@ const char* cWM3000uServer::mGetStatus() {
 }
 
 
-const char* cWM3000uServer::mGetCValue(char* s) // abfrage des korrekturwertes (ev. mit parameter)
-{
+const char* cWM3000uServer::mSetGainStatus(char* s) {
     bool ok;
     QString par = pCmdInterpreter->m_pParser->GetKeyword(&s); // holt den parameter aus dem kommando
+    int st=par.toInt(&ok);
+    if (ok) {
+    if ( EEPromAccessEnable() ) {
+        QString dedicatedChannel = pCmdInterpreter->dedicatedList.first();
+        pCmdInterpreter->dedicatedList.pop_front();
+        QString dedicatedRange = pCmdInterpreter->dedicatedList.first();
+        sRange* ranges=SearchRange(dedicatedChannel,dedicatedRange);
+        ranges->pJustData->m_pGainCorrection->setStatus(st);
+        Answer = ACKString; // acknowledge
+    }
+    else Answer = ERRAUTString; // nicht autorisiert
+    }
+    else Answer = ERRVALString; // error value
+    return Answer.latin1();
+}
+
+
+const char* cWM3000uServer::mGetGainStatus() {
     QString dedicatedChannel = pCmdInterpreter->dedicatedList.first();
     pCmdInterpreter->dedicatedList.pop_front();
     QString dedicatedRange = pCmdInterpreter->dedicatedList.first();
-    sRange* rangeSense=SearchRange(dedicatedChannel,dedicatedRange);
+    sRange* ranges=SearchRange(dedicatedChannel,dedicatedRange);
+    int st=ranges->pJustData->m_pGainCorrection->getStatus();
+    Answer = QString::number(st);
+    return Answer.latin1();
+}
+
+
+const char *cWM3000uServer::mSetPhaseStatus(char* s)
+{
+    bool ok;
+    QString par = pCmdInterpreter->m_pParser->GetKeyword(&s); // holt den parameter aus dem kommando
+    int st=par.toInt(&ok);
+    if (ok) {
+    if ( EEPromAccessEnable() ) {
+        QString dedicatedChannel = pCmdInterpreter->dedicatedList.first();
+        pCmdInterpreter->dedicatedList.pop_front();
+        QString dedicatedRange = pCmdInterpreter->dedicatedList.first();
+        sRange* ranges=SearchRange(dedicatedChannel,dedicatedRange);
+        ranges->pJustData->m_pPhaseCorrection->setStatus(st);
+        Answer = ACKString; // acknowledge
+    }
+    else Answer = ERRAUTString; // nicht autorisiert
+    }
+    else Answer = ERRVALString; // error value
+    return Answer.latin1();
+}
+
+
+const char *cWM3000uServer::mGetPhaseStatus()
+{
+    QString dedicatedChannel = pCmdInterpreter->dedicatedList.first();
     pCmdInterpreter->dedicatedList.pop_front();
-    QString dedicatedsCValue = pCmdInterpreter->dedicatedList.first();
-    if (dedicatedsCValue == "CAMPLITUDE")
+    QString dedicatedRange = pCmdInterpreter->dedicatedList.first();
+    sRange* ranges=SearchRange(dedicatedChannel,dedicatedRange);
+    int st=ranges->pJustData->m_pPhaseCorrection->getStatus();
+    Answer = QString::number(st);
+    return Answer.latin1();
+}
+
+
+const char *cWM3000uServer::mSetOffsetStatus(char* s)
+{
+    bool ok;
+    QString par = pCmdInterpreter->m_pParser->GetKeyword(&s); // holt den parameter aus dem kommando
+    int st=par.toInt(&ok);
+    if (ok) {
+    if ( EEPromAccessEnable() ) {
+        QString dedicatedChannel = pCmdInterpreter->dedicatedList.first();
+        pCmdInterpreter->dedicatedList.pop_front();
+        QString dedicatedRange = pCmdInterpreter->dedicatedList.first();
+        sRange* ranges=SearchRange(dedicatedChannel,dedicatedRange);
+        ranges->pJustData->m_pOffsetCorrection->setStatus(st);
+        Answer = ACKString; // acknowledge
+    }
+    else Answer = ERRAUTString; // nicht autorisiert
+    }
+    else Answer = ERRVALString; // error value
+    return Answer.latin1();
+}
+
+
+const char *cWM3000uServer::mGetOffsetStatus()
+{
+    QString dedicatedChannel = pCmdInterpreter->dedicatedList.first();
+    pCmdInterpreter->dedicatedList.pop_front();
+    QString dedicatedRange = pCmdInterpreter->dedicatedList.first();
+    sRange* ranges=SearchRange(dedicatedChannel,dedicatedRange);
+    int st=ranges->pJustData->m_pOffsetCorrection->getStatus();
+    Answer = QString::number(st);
+    return Answer.latin1();
+}
+
+
+const char* cWM3000uServer::mGetCValue(char* s) // abfrage des korrekturwertes (ev. mit parameter)
+{
+    bool ok;
+    QString par;
+    QString ads;
+    QString adwrange;
+    QString dedicatedChannel, dedicatedRange, dedicatedsCValue;
+    QString channel;
+    int samples;
+    sRange* rangeSense;
+    sRange* rangeADW;
+
+
+    par = pCmdInterpreter->m_pParser->GetKeyword(&s); // holt den parameter aus dem kommando
+    dedicatedChannel = pCmdInterpreter->dedicatedList.first();
+    pCmdInterpreter->dedicatedList.pop_front();
+    dedicatedRange = pCmdInterpreter->dedicatedList.first();
+    rangeSense=SearchRange(dedicatedChannel,dedicatedRange);
+    pCmdInterpreter->dedicatedList.pop_front();
+    dedicatedsCValue = pCmdInterpreter->dedicatedList.first();
+    samples = QString(mGetPSamples()).toInt();
+    ads = (samples == 80) ? "ADW80" : "ADW256";
+
+    if (jdvGreater("V2.11")) // wir haben andere adw bereich namen
     {
-        QString s;
-        int samples;
-        double ampl;
-
-        samples = QString(mGetPSamples()).toInt();
-        s = (samples == 80) ? "ADW80" : "ADW256";
-        ampl = par.toDouble(&ok);
-
-        if (m_bNewJustData)
-        {
-            QString adwChannel, adwrange;
-
-            adwChannel = "ch0";
-            adwrange = QString("%1.%2").arg(s).arg(getFreqCode());
-            sRange* rangeADW=SearchRange(adwChannel, adwrange);
-            if (ok)
-            {
-                Answer = QString::number(rangeADW->pJustData->m_pPhaseCorrection->getCorrection(SignalFrequency) * rangeSense->pJustData->m_pGainCorrection->getCorrection(ampl)); // acknowledge
-            }
-            else
-                Answer = ERRVALString; // error value
-        }
+        if (dedicatedsCValue == "CAMPLITUDE")
+            adwrange = QString("%1.%2").arg(ads).arg(getFreqCode());
+            // für amplitudenabgleich eine kurve aus einer kurvenschar weil das verhälnis von signalfrequenz zu abtastfrequenz relevant ist
         else
-        {
-            sRange* rangeADW=SearchRange(dedicatedChannel,s);
-            if (ok)
-            {
-                Answer = QString::number(rangeADW->pJustData->m_pGainCorrection->getCorrection(ampl) * rangeSense->pJustData->m_pGainCorrection->getCorrection(ampl)); // acknowledge
-            }
-            else
-                Answer = ERRVALString; // error value
-        }
+            adwrange = QString("%1.50").arg(ads); // für phasenabgleich die eine korrekturkurve über die frequenz
+        rangeADW=SearchRange(channel="ch0", adwrange);
     }
     else
+    {
+        rangeADW=SearchRange(dedicatedChannel,ads);
+    }
+
+    if (dedicatedsCValue == "CAMPLITUDE")
+    {
+        double ampl = par.toDouble(&ok);
+        if (ok)
+        {
+            if (jdvGreater("V2.14"))
+                Answer = QString::number(rangeADW->pJustData->m_pGainCorrection->getCorrection(SignalFrequency) * rangeSense->pJustData->m_pGainCorrection->getCorrection(ampl)); // acknowledge
+            else
+                if (jdvGreater("V2.11"))
+                    Answer = QString::number(rangeADW->pJustData->m_pPhaseCorrection->getCorrection(SignalFrequency) * rangeSense->pJustData->m_pGainCorrection->getCorrection(ampl));
+                else
+                    Answer = QString::number(rangeADW->pJustData->m_pGainCorrection->getCorrection(SignalFrequency) * rangeSense->pJustData->m_pGainCorrection->getCorrection(ampl));
+                    // hier wurde von H.H. nur 1 gain coeff im adw256 bereich gesetzt
+        }
+        else
+            Answer = ERRVALString; // error value
+    }
+    else
+
     if (dedicatedsCValue == "CPHASE")
     {
         // phi = delay * signalfreq * 360°
@@ -2217,22 +2445,37 @@ const char* cWM3000uServer::mGetCValue(char* s) // abfrage des korrekturwertes (
         // mclk = samplefreq * psamples (80 od. 256) * (8 od. 2) * 256
         // mclk geändert wegen emv - problemen mclk = samplefreq * psamples (80 od. 256) * (4 od. 1) * 256
         // -> phi = 12.288 * 2 * 283.2 * 360.0 * signalfreq/ (256 * (512 od. 640) * samplefreq)
+
         double f = par.toDouble(&ok);
-        if (ok) {
-            double pkADW;
+
+        if (ok)
+        {
+            double pkADW, pkSense;
             SignalFrequency = f; // we store the value for adw gain correction !!!! not quite clean but....
-            int samples = QString(mGetPSamples()).toInt();
-            if (sCTRLVersion.contains("1."))
-                pkADW = (samples == 80) ? 1/640.0 : 1/512.0;
+            if (!jdvGreater("V2.14")) // ab V2.15 haben wir wieder den adw phasenabgleich .....
+            {
+                if (sCTRLVersion.contains("1."))
+                    pkADW = (samples == 80) ? 1/640.0 : 1/512.0;
+                else
+                    pkADW = (samples == 80) ? 1/320.0 : 1/256.0;
+                // pkADW = -(2.25 + (pkADW * 12.288 * 566.4 * 360.0 * f / (256.0 * SampleFrequency)));
+                // die 2.25° sind auch frequenzabhängig -> deshalb
+                // pkADW = -( (2.25*256.0 + pkADW * 12.288 * 566.4 * 360.0) * f / (256.0 * SampleFrequency));
+                // es sind 360.0 / (80 * 2)  bzw. 360 / ( 256 * 2) -> 360/ 2.0*samples
+                pkADW = -( ( (360.0*256.0 / (2.0*samples)) + pkADW * 12.288 * 566.4 * 360.0) * f / (256.0 * SampleFrequency));
+                pkSense = rangeSense->pJustData->m_pPhaseCorrection->getCorrection(f);
+                Answer = QString::number(pkSense+pkADW);
+            }
             else
-                pkADW = (samples == 80) ? 1/320.0 : 1/256.0;
-            // pkADW = -(2.25 + (pkADW * 12.288 * 566.4 * 360.0 * f / (256.0 * SampleFrequency)));
-            // die 2.25° sind auch frequenzabhängig -> deshalb
-            // pkADW = -( (2.25*256.0 + pkADW * 12.288 * 566.4 * 360.0) * f / (256.0 * SampleFrequency));
-            // es sind 360.0 / (80 * 2)  bzw. 360 / ( 256 * 2) -> 360/ 2.0*samples
-            pkADW = -( ( (360.0*256.0 / (2.0*samples)) + pkADW * 12.288 * 566.4 * 360.0) * f / (256.0 * SampleFrequency));
-            double pkSense = rangeSense->pJustData->m_pPhaseCorrection->getCorrection(f);
-            Answer = QString::number(pkSense+pkADW);
+            {
+                // alles neu macht der mai....äh....oktober ?
+                // da die obige berechnung der phasenkorrektur einen nicht nachvollziehbaren winkelfehler von ca 0.06°
+                // ergibt, rudern wir wieder zurück auf das verfahren von vor gefühlt 100 jahren und messen den phasengang
+                // der adw wandler wieder ein .... und schon ists schön
+                pkADW = rangeADW->pJustData->m_pPhaseCorrection->getCorrection(f);
+                pkSense= rangeSense->pJustData->m_pPhaseCorrection->getCorrection(f);
+                Answer = QString::number(pkSense+pkADW);
+            }
         }
         else
             Answer = ERRVALString; // error value
@@ -2242,9 +2485,12 @@ const char* cWM3000uServer::mGetCValue(char* s) // abfrage des korrekturwertes (
     {
         Answer = QString::number(rangeSense->pJustData->m_pOffsetCorrection->getCorrection(1.0)); // parameter dummy
     }
-    
+
     return Answer.latin1();
 }
+
+
+
 
 
 const char* cWM3000uServer::mGetRejection() {
@@ -2595,6 +2841,9 @@ const char* cWM3000uServer::SCPICmd( SCPICmdType cmd, char* s) {
     case 	SetCValueCNode:		return mSetCValueCNode(s);
     case	CmpCCoefficient:		return mCmpCCoefficient(s);
     case   SetStatus:		return mSetStatus(s);	
+    case   SetGStatus:		return mSetGainStatus(s);
+    case   SetPStatus:		return mSetPhaseStatus(s);
+    case   SetOStatus:		return mSetOffsetStatus(s);
     case   SetRange:		return mSetRange(s);
     case	SetProtection:		return mSetProtection(s);
     case   ChannelClose:		return mChannelClose(s);
@@ -2632,6 +2881,9 @@ const char* cWM3000uServer::SCPIQuery( SCPICmdType cmd, char* s) {
     case 		GetCValueCNode:		return mGetCValueCNode();	
     case 		GetCValueCNodeName:	return mGetCValueCNodeName();	
     case 		GetStatus:		return mGetStatus();
+    case 		GetGStatus:		return mGetGainStatus();
+    case 		GetPStatus:		return mGetPhaseStatus();
+    case 		GetOStatus:		return mGetOffsetStatus();
     case 		GetCValue:		return mGetCValue(s);
     case 		GetRejection:		return mGetRejection();
     case 		GetRValue:		return mGetRValue();
