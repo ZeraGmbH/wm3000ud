@@ -15,13 +15,16 @@
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qmap.h>
-#include <q3textstream.h>
 #include <qfile.h>                                                                                   
 #include <qdom.h>
 #include <qbuffer.h>
-//Added by qt3to4:
-#include <QTextOStream>
 #include <unistd.h>
+#include <QTextStream>
+#include <i2cutils.h>
+#include <intelhexfileio.h>
+#include <F24LC256.h>
+#include <crcutils.h>
+
 #include "zeraglobal.h"
 #include "wmuglobal.h"
 #include "wmjustdata.h"
@@ -29,10 +32,6 @@
 #include "cmdinterpret.h"
 #include "zhserver.h"
 #include "wm3000ud.h"
-#include "i2ceeprom.h"
-#include "crcutils.h"
-#include "i2cutils.h"
-#include "intelhexfileio.h"
 
 
 extern cNode* InitCmdTree();
@@ -41,8 +40,8 @@ extern cNode* InitCmdTree();
 
 
 static sRange RangeCh0[10]=
-                  {{"ADW80"  ,"ADW80"   ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW256" ,"ADW256"  ,"500000"  ,255,  Volt , rngVirt, NULL},
+                  {{"ADW80"  ,"ADW80"   ,"500000"  ,char(255),  Volt , rngVirt, NULL},
+                   {"ADW256" ,"ADW256"  ,"500000"  ,char(255),  Volt , rngVirt, NULL},
 
                    {"480V"   ,"480.0"   ,"4730418"  ,0 ,  Volt, rngPhys, NULL},
                    { "240V"  ,"240.0"   ,"4730418"  ,1 , Volt, rngPhys,NULL},
@@ -55,8 +54,8 @@ static sRange RangeCh0[10]=
 
 
 static sRange RangeCh1[20]=
-                  {{"ADW80"  ,"ADW80"  ,"500000"  ,255,    Volt, rngVirt, NULL},
-                   {"ADW256"  ,"ADW256"  ,"500000"  ,255,    Volt, rngVirt,NULL},
+                  {{"ADW80"  ,"ADW80"  ,"500000"  ,char(255),    Volt, rngVirt, NULL},
+                   {"ADW256"  ,"ADW256"  ,"500000"  ,char(255),    Volt, rngVirt,NULL},
 
                    {"480V"   ,"480.0" ,"4730418"  ,0 ,   Volt, rngPhys,NULL},
                    { "240V"   ,"240.0" ,"4730418"  ,1 ,  Volt, rngPhys,NULL},
@@ -80,18 +79,18 @@ static sRange RangeCh1[20]=
 
 
 static sRange RangeCh0V212[14]=
-                  {{"ADW80.16"  ,"ADW80.16"   ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW80.50"  ,"ADW80.50"   ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW80.60"  ,"ADW80.60"   ,"500000"  ,255,  Volt , rngVirt, NULL},
+                  {{"ADW80.16"  ,"ADW80.16"   ,"500000"  ,char(255),  Volt , rngVirt, NULL},
+                   {"ADW80.50"  ,"ADW80.50"   ,"500000"  ,char(255),  Volt , rngVirt, NULL},
+                   {"ADW80.60"  ,"ADW80.60"   ,"500000"  ,char(255),  Volt , rngVirt, NULL},
 
-                   {"ADW256.16"  ,"ADW256.16" ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW256.50"  ,"ADW256.50" ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW256.60"  ,"ADW256.60" ,"500000"  ,255,  Volt , rngVirt, NULL},
+                   {"ADW256.16"  ,"ADW256.16" ,"500000"  ,char(255),  Volt , rngVirt, NULL},
+                   {"ADW256.50"  ,"ADW256.50" ,"500000"  ,char(255),  Volt , rngVirt, NULL},
+                   {"ADW256.60"  ,"ADW256.60" ,"500000"  ,char(255),  Volt , rngVirt, NULL},
 
                    /*   mal schauen .......
-                   {"ADW96.50"  ,"ADW96.50"   ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW288.50" ,"ADW288.50"  ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW240.60" ,"ADW240.60"  ,"500000"  ,255,  Volt , rngVirt, NULL},
+                   {"ADW96.50"  ,"ADW96.50"   ,"500000"  ,char(255),  Volt , rngVirt, NULL},
+                   {"ADW288.50" ,"ADW288.50"  ,"500000"  ,char(255),  Volt , rngVirt, NULL},
+                   {"ADW240.60" ,"ADW240.60"  ,"500000"  ,char(255),  Volt , rngVirt, NULL},
                    */
 
                    {"480V"   ,"480.0"  ,"4730418"  ,0 ,  Volt, rngPhys, NULL},
@@ -389,8 +388,8 @@ char* cWM3000uServer::GenAdressPointerParameter(uchar adresspointerSize, ulong a
 
 bool cWM3000uServer::readJustFlash(QByteArray &jdata)
 {
-    QByteArray ba(6); // byte array zur aufnahme länge und checksumme
-    c24LC256* Flash=new c24LC256(sI2CDevNode,DebugLevel,I2CEEPromAdress);
+    QByteArray ba(6,0); // byte array zur aufnahme länge und checksumme
+    cF24LC256* Flash = new cF24LC256(sI2CDevNode,DebugLevel,I2CEEPromAdress);
     if ( (6 - Flash->ReadData(ba.data(),6,0)) >0 )
     {
         if DEBUG1 syslog(LOG_ERR,"error reading flashmemory\n");
@@ -427,18 +426,18 @@ bool cWM3000uServer::validJustData(QByteArray &jdata)
     QBuffer mem;
     mem.setBuffer(&jdata);
     mem.open(QIODevice::ReadWrite);
-    mem.at(0);
+    mem.seek(0);
 
-    Q_UINT16 chksumCMP = 0;
+    quint16 chksumCMP = 0;
 
     uint count;
     count = jdata.size();
 
-    QByteArray ca(6); // qbyte array mit 6 bytes
+    QByteArray ca(6, 0); // qbyte array mit 6 bytes
     QDataStream castream( &ca, QIODevice::WriteOnly );
     castream << count << chksumCMP;
 
-    mem.writeBlock(ca); // 0 setzen der checksumme
+    mem.write(ca); // 0 setzen der checksumme
 
     chksumCMP = qChecksum(jdata.data(),jdata.size());
     if (chksumCMP != m_nChksumFlash)
@@ -457,7 +456,7 @@ bool cWM3000uServer::fetchJustData(QByteArray &jdata)
     QDataStream bastream(&jdata, QIODevice::ReadOnly );
     char flashdata[100];
     char* s = flashdata;
-    Q_UINT16 chksumCMP;
+    quint16 chksumCMP;
     uint count;
 
     bastream >> count >> chksumCMP;
@@ -564,7 +563,7 @@ void cWM3000uServer::fetchJustDataVersion(QByteArray &jdata)
     QDataStream bastream(&jdata, QIODevice::ReadOnly );
     char flashdata[100];
     char* s = flashdata;
-    Q_UINT16 chksumCMP;
+    quint16 chksumCMP;
     uint count;
 
     bastream >> count >> chksumCMP;
@@ -758,11 +757,11 @@ QString cWM3000uServer::getFreqCode()
 
 sRange* cWM3000uServer::SearchRange(QString& ch,QString& rng) { // holt einen zeiger auf sRange abhängig v. kanal,range 
     tChannelListMap::Iterator it=ChannelRangeListMap.find(ch);
-    QStringList* sl=it.data();
-    int i=sl->findIndex(rng);
+    QStringList* sl=it.value();
+    int i=sl->indexOf(rng);
     if ( i < 0 ) return(NULL); // den bereich gibt es nicht
     tChannelRangeArrayMap::Iterator it2=ChannelRangeArrayMap.find(ch);
-    sRange* lr=it2.data();
+    sRange* lr=it2.value();
     lr+=i;    
     return(lr);
 }
@@ -781,7 +780,7 @@ bool cWM3000uServer::GetAdjInfo(QDomNode n) // n steht auf einem element dessen 
     QDomNodeList nl=n.childNodes();
     tRangeJustMap::iterator it4;
 
-    for (uint i=0; i<nl.length(); i++)
+    for (int i=0; i<nl.length(); i++)
     {
         QDomNode n=nl.item(i);
         QDomElement e=n.toElement();
@@ -794,7 +793,7 @@ bool cWM3000uServer::GetAdjInfo(QDomNode n) // n steht auf einem element dessen 
             tChannelListMap::Iterator it=ChannelRangeListMap.find(ch);
             if (it==ChannelRangeListMap.end())
                 return(false); // den kanal gibt es nicht, auch ein fehler
-            sl=it.data();
+            sl=it.value();
             if (jdvGreater("V2.14"))
                 for (it2 = sl->begin(); it2 != sl->end() ; it2++) RangeJustMap[*it2]=new cWMJustDataV215(); // default daten bei import
             else
@@ -805,7 +804,7 @@ bool cWM3000uServer::GetAdjInfo(QDomNode n) // n steht auf einem element dessen 
         {
             QDomNodeList nl2=n.childNodes(); // nl2 ist eine qdomnode liste mit allen nodes unterhalb "Range"
             QString rname;
-            for (uint j=0; j<nl2.length(); j++)
+            for (int j=0; j<nl2.length(); j++)
             {
                 n=nl2.item(j);
                 QDomElement e2=n.toElement();
@@ -829,7 +828,7 @@ bool cWM3000uServer::GetAdjInfo(QDomNode n) // n steht auf einem element dessen 
                     it4=RangeJustMap.find(rname);
                     if (it4 != RangeJustMap.end() )
                     { // den bereich gibts
-                        cWMJustDataBase* jwmd=it4.data();
+                        cWMJustDataBase* jwmd=it4.value();
                         cJustDataBase* jd = NULL;
                         if (tName2 == "Gain")
                             jd = jwmd->m_pGainCorrection;
@@ -841,7 +840,7 @@ bool cWM3000uServer::GetAdjInfo(QDomNode n) // n steht auf einem element dessen 
                         QDomNode n2;
                         QDomElement e3;
                         QString tName3;
-                        for (uint k=0;k<nl3.length(); k++)
+                        for (int k=0;k<nl3.length(); k++)
                         {
                             n2 = nl3.item(k);
                             e3=n2.toElement();
@@ -871,11 +870,11 @@ bool cWM3000uServer::GetAdjInfo(QDomNode n) // n steht auf einem element dessen 
     if (sl)
     {
         tChannelRangeArrayMap::Iterator it3=ChannelRangeArrayMap.find(ch);
-        sRange* srdest=it3.data();
+        sRange* srdest=it3.value();
         for (it2 = sl->begin(); it2 != sl->end() ; it2++,srdest++)
         {
             it4=RangeJustMap.find(*it2);
-            *(srdest->pJustData) = *(it4.data());
+            *(srdest->pJustData) = *(it4.value());
         }
     }
     return (true);
@@ -907,7 +906,7 @@ const char* cWM3000uServer::mSetSyncPeriod(char* s) {
 	Answer = mSetPPSSync(); 
     }
     else Answer = ERRVALString;
-    return Answer.latin1();        
+    return Answer.toLatin1();
 }
  
 
@@ -921,7 +920,7 @@ const char* cWM3000uServer::mSetSyncSource(char* s) {
 	Answer = mSetPPSSync(); 
     }
     else Answer = ERRVALString;
-    return Answer.latin1();            
+    return Answer.toLatin1();
 }
 
 
@@ -941,7 +940,7 @@ const char* cWM3000uServer::mSetPSamples(char* s) {
 	    Answer = ERREXECString; 
     }
     else Answer = ERRVALString;
-    return Answer.latin1();        
+    return Answer.toLatin1();
 }	
  
 
@@ -960,7 +959,7 @@ const char* cWM3000uServer::mSetSampleMode(char* s) {
 	    Answer = ERREXECString;
     }
     else Answer = ERRVALString;
-    return Answer.latin1();    
+    return Answer.toLatin1();
 }
 
 
@@ -977,26 +976,26 @@ const char* cWM3000uServer::mSetSampleFrequency(char* s) {
 
 	hw_cmd CMD = { cmdcode: hwSetFrequency, device: 0, par: FPAR, plen: 4,cmdlen: 0,cmddata: 0, RM:0 };
 	if ( (I2CWriteCommand(&CMD) == 0) &&  (CMD.RM == 0) ) 
-	    return Answer = ACKString; // acknowledge
+        return ACKString; // acknowledge
 	else						   
-	    return Answer = ERREXECString;
+        return ERREXECString;
     }
     else Answer = ERRVALString;
-    return Answer.latin1();            
+    return Answer.toLatin1();
 }	
 
 
 const char* cWM3000uServer::mFile2Justdata(char* s) {
     if ( !EEPromAccessEnable() ){
 	Answer = ERRAUTString; // nicht erlaubt
-	return Answer.latin1();
+    return Answer.toLatin1();
     }
     QString filename = pCmdInterpreter->m_pParser->GetKeyword(&s); // holt den parameter aus dem kommando
     QFile file( filename+".xml" );
     if ( !file.open( QIODevice::ReadOnly ) ) {
 	if DEBUG1 syslog(LOG_ERR,"justdata import,xml file does not exist\n");
 	Answer = ERRPATHString; // falscher filename
-	return Answer.latin1();
+    return Answer.toLatin1();
     }
     
     QDomDocument justdata( "TheDocument" );
@@ -1004,7 +1003,7 @@ const char* cWM3000uServer::mFile2Justdata(char* s) {
 	file.close();
 	if DEBUG1 syslog(LOG_ERR,"justdata import, format error in xml file\n");
 	Answer = ERRXMLFORMATString;; // fehler im xml file
-	return Answer.latin1();
+    return Answer.toLatin1();
     }
     file.close();
 
@@ -1012,7 +1011,7 @@ const char* cWM3000uServer::mFile2Justdata(char* s) {
    if  (TheDocType.name() != "WM3000UAdjustmentData") {
               if DEBUG1 syslog(LOG_ERR,"justdata import, wrong xml documentype\n");
      	Answer = ERRXMLDOCTYPEString; // document type inkorrekt
-	return Answer.latin1();
+    return Answer.toLatin1();
     }
    
    QDomElement rootElem = justdata.documentElement(); 
@@ -1023,26 +1022,26 @@ const char* cWM3000uServer::mFile2Justdata(char* s) {
    bool DateOK=false;
    bool TimeOK=false;
    
-   for (uint i=0; i<nl.length() ; i++) {
+   for (int i=0; i<nl.length() ; i++) {
        QDomNode n = nl.item(i);
        QDomElement e=n.toElement();
        if ( e.isNull() ) { 
 	   Answer = ERRXMLFORMATString;
-	   return Answer.latin1();
+       return Answer.toLatin1();
        }
        QString tName=e.tagName();
        if (tName == "SerialNumber") {	
 	   if (  !(SerialNrOK = (e.text() == sSerialNumber )) ) {
 	       if DEBUG1 syslog(LOG_ERR,"justdata import, wrong serialnumber in xml file\n");
 	       Answer = ERRXMLSERIALString;
-	       return Answer.latin1();
+           return Answer.toLatin1();
 	   }
        } else
        if (tName == "VersionNumber") {
 	   if ( ! ( VersionNrOK= (e.text() == sDeviceVersion) ) ) {
 	       if DEBUG1 syslog(LOG_ERR,"justdata import, wrong versionnumber in xml file\n");
 	       Answer = ERRXMLVERSIONString;
-	       return Answer.latin1();
+           return Answer.toLatin1();
 	   }
        } else
        if (tName=="Date") {
@@ -1058,22 +1057,22 @@ const char* cWM3000uServer::mFile2Justdata(char* s) {
        if (tName == "Adjustment") {
 	   if ( VersionNrOK && SerialNrOK && DateOK && TimeOK) {
 	       QDomNodeList nl2=e.elementsByTagName ("Channel") ;
-	       for (uint j=0;j<nl2.length();j++) {
+           for (int j=0;j<nl2.length();j++) {
 		   n=nl2.item(j);
 		   if ( !GetAdjInfo(n) ) {
 		       if DEBUG1 syslog(LOG_ERR,"justdata import, wrong channel in xml file\n");
 		       Answer = ERRXMLNODEString + n.nodeName();
-		       return Answer.latin1();
+               return Answer.toLatin1();
 		   }
 	       }
 	       Answer = ACKString;
-	       return Answer.latin1();
+           return Answer.toLatin1();
 	   }
        }
    }
    if DEBUG1 syslog(LOG_ERR,"justdata import, strange xml file\n");
    Answer = ERRXMLFORMATString;
-   return Answer.latin1();
+   return Answer.toLatin1();
 }
 
 
@@ -1128,7 +1127,7 @@ const char* cWM3000uServer::mJustData2File(char* s) {
         t = justdata.createTextNode(*it);
         tag.appendChild( t );
 
-        QStringList* sl=ChannelRangeListMap.find(*it).data();
+        QStringList* sl=ChannelRangeListMap.find(*it).value();
         QStringList::Iterator it3;
         for ( it3 = sl->begin(); it3 != sl->end(); ++it3 )
         {
@@ -1201,7 +1200,7 @@ const char* cWM3000uServer::mJustData2File(char* s) {
             {
                 // wir müssen auch alte daten als xml speichern können
                 // wir wollen vielleicht im nachgang justagedaten dokumentieren
-                QStringList* sl=ChannelRangeListMap.find(*it).data();
+                QStringList* sl=ChannelRangeListMap.find(*it).value();
                 QStringList::Iterator it3;
                 for ( it3 = sl->begin(); it3 != sl->end(); ++it3 ) {
                     sRange* rng = SearchRange(*it,*it3);
@@ -1268,43 +1267,43 @@ const char* cWM3000uServer::mJustData2File(char* s) {
 
     QFile file(filename);
     if ( file.open( QIODevice::WriteOnly ) ) {
-    Q3TextStream stream( &file );
+    QTextStream stream( &file );
     stream << xml;
     file.close();
     Answer = ACKString;
-    return Answer.latin1();
+    return Answer.toLatin1();
     }
     if DEBUG1 syslog(LOG_ERR,"justdata export, could not open xml file\n");
     Answer = ERRPATHString;
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
 const char* cWM3000uServer::mEEProm2JustData(char* s) {
      if (pCmdInterpreter->m_pParser->GetChar(&s) ) { // schau mal nach ob noch was kommt
 	Answer = NACKString; // not acknowledge 	    
-	return Answer.latin1();
+    return Answer.toLatin1();
     }
     if (ReadJustData())
         Answer = ACKString;
     else
         Answer = ERRMMEMString;
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
  
 
 const char* cWM3000uServer::mJustData2EEProm(char* s) {
      if (pCmdInterpreter->m_pParser->GetChar(&s) ) { // schau mal nach ob noch was kommt
 	Answer = NACKString; // not acknowledge 	    
-	return Answer.latin1();
+    return Answer.toLatin1();
     }
      if ( !EEPromAccessEnable() ){
 	 Answer = ERRAUTString; // nicht erlaubt
-	 return Answer.latin1();
+     return Answer.toLatin1();
     }
 
     uint count=0;
-    Q_UINT16 chksum=0;
+    quint16 chksum=0;
     QByteArray ba;
 
     QDataStream stream(&ba,QIODevice::ReadWrite);
@@ -1317,12 +1316,12 @@ const char* cWM3000uServer::mJustData2EEProm(char* s) {
     stream << ServerVersion;
     
     stream << LeiterkartenName; // leiterkarten name
-    stream << sDeviceVersion.latin1(); // versionsnummer
-    stream << sSerialNumber.latin1(); // seriennummer
-    stream << DateTime.toString(Qt::TextDate).latin1(); // datum,uhrzeit
+    stream << sDeviceVersion.toLatin1(); // versionsnummer
+    stream << sSerialNumber.toLatin1(); // seriennummer
+    stream << DateTime.toString(Qt::TextDate).toLatin1(); // datum,uhrzeit
     for (QStringList::iterator it=MeasChannelList.begin(); it !=MeasChannelList.end(); it++) {
-	stream << (*it).latin1(); // kanalname
-	QStringList* sl=ChannelRangeListMap.find(*it).data(); 
+    stream << (*it).toLatin1(); // kanalname
+    QStringList* sl=ChannelRangeListMap.find(*it).value();
 	count = sl->count();
 	stream << count;
 	QStringList::Iterator it3;
@@ -1334,28 +1333,28 @@ const char* cWM3000uServer::mJustData2EEProm(char* s) {
     }	
     
     count = ba.count(); // um die länge zu bestimmen
-    QByteArray ca(6); // qbyte array mit 6 bytes
+    QByteArray ca(6,0); // qbyte array mit 6 bytes
     
     QDataStream castream( &ca, QIODevice::WriteOnly );
     castream << count << chksum;
 	
     QBuffer mem(&ba);
     mem.open(QIODevice::ReadWrite);
-    mem.at(0); // qbuffer auf den anfang positionieren
-    mem.writeBlock(ca); // überschreibt die länge + checksumme (noch 0)
+    mem.seek(0); // qbuffer auf den anfang positionieren
+    mem.write(ca); // überschreibt die länge + checksumme (noch 0)
 	
     chksum = qChecksum(ba.data(),ba.size()); // +crc-16
     QDataStream castream2( &ca, QIODevice::WriteOnly );
     castream2 << count << chksum;
 	
-    mem.at(0); 
-    mem.writeBlock(ca); // überschreibt die länge und jetzt die richtige checksumme
+    mem.seek(0);
+    mem.write(ca); // überschreibt die länge und jetzt die richtige checksumme
 	
     // ein datenblock mit justagedaten für 1 kanal liegt in qbuffer mem 
 	
     mem.close(); // wird nicht mehr benötigt
    
-    c24LC256* Flash=new c24LC256(sI2CDevNode,DebugLevel,I2CEEPromAdress);
+    cF24LC256* Flash=new cF24LC256(sI2CDevNode,DebugLevel,I2CEEPromAdress);
     int written = Flash->WriteData(ba.data(),ba.size(),0);
     if ( (count - written) > 0) {
 	if DEBUG1 syslog(LOG_ERR,"error writing flashmemory\n");
@@ -1371,7 +1370,7 @@ const char* cWM3000uServer::mJustData2EEProm(char* s) {
             Answer = ERRMMEMString; // geben aber eine fehlermeldung ab
     }
     
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -1380,13 +1379,13 @@ const char* cWM3000uServer::mGetEEpromEnable() {
 	Answer="1";
     else
 	Answer="0";
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
 const char* cWM3000uServer::mGetEEPrChksum() {
     Answer = QString("0x%1").arg(m_nChksumFlash,0,16);
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -1401,10 +1400,10 @@ const char* cWM3000uServer::mGetPSamples() {
 	    for (int i = 0; i < 2; i++)
 		ps = (ps << 8) + answ[i];
 	    Answer = QString::number(ps);
-	    return Answer.latin1();
+        return Answer.toLatin1();
 	}
     }
-    return Answer.latin1();
+    return Answer.toLatin1();
 }	
 
 
@@ -1421,10 +1420,10 @@ const char* cWM3000uServer::mGetSyncPeriod() {
 	    float p = (PPSPar & 0xFFFFFFF) / 1.0e5;  // 28 bit 10ns -> 1ms
 	    PPSPar = (ulong) p; 
 	    Answer = QString::number(PPSPar);
-	    return Answer.latin1();
+        return Answer.toLatin1();
 	}
     }
-    return Answer.latin1();    
+    return Answer.toLatin1();
 }
 
 
@@ -1438,10 +1437,10 @@ const char* cWM3000uServer::mGetSyncSource() {
 	    ulong PPSPar = answ[0];
 	    PPSPar = (PPSPar >> 7) & 1;
 	    Answer = QString::number(PPSPar);
-	    return Answer.latin1();
+        return Answer.toLatin1();
 	}
     }
-    return Answer.latin1();    
+    return Answer.toLatin1();
 }
 
 
@@ -1454,10 +1453,10 @@ const char* cWM3000uServer::mGetSampleMode() {
 	if (I2CReadOutput(answ,2) == 2) {
 	    int pm = answ[0];
 	    Answer = QString::number(pm);
-	    return Answer.latin1();
+        return Answer.toLatin1();
 	}
     }
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
     
 
@@ -1472,10 +1471,10 @@ const char* cWM3000uServer::mGetSampleFrequency() {
 		FPar = (FPar << 8) + answ[i];
 	    float fr = FPar / 1.0e6;
 	    Answer = QString::number(fr,'f',6);
-	    return Answer.latin1();
+        return Answer.toLatin1();
 	}
     }
-    return Answer.latin1();    
+    return Answer.toLatin1();
 }
 
 
@@ -1485,7 +1484,7 @@ const char* cWM3000uServer::mSetSerialNumber(char* s) {
     if ( (lplen<1) || (lplen>24) ) Answer = NACKString;
     else
     {
-	struct hw_cmd CMD = { cmdcode: hwSetSerialNr, device: 0, par: spar.latin1(), plen: lplen,cmdlen: 0,cmddata: 0, RM:0 };
+    struct hw_cmd CMD = { cmdcode: hwSetSerialNr, device: 0, par: spar.toLatin1(), plen: lplen,cmdlen: 0,cmddata: 0, RM:0 };
 	if ( (I2CWriteCommand(&CMD) == 0) && (CMD.RM == 0) )
 	{
 	    Answer = ACKString;
@@ -1494,7 +1493,7 @@ const char* cWM3000uServer::mSetSerialNumber(char* s) {
 	else
 	    Answer = ERREXECString;
     }
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -1537,7 +1536,7 @@ const char* cWM3000uServer::mControlerMemUpdate(bl_cmdcode blwriteCmd,char* s)
 			struct bl_cmd blAdressCMD = {cmdcode: blWriteAddressPointer, par: adrParameter, plen: adrParLen, cmdlen: 0, cmddata: 0, RM: 0};
 			if ( (I2CBootloaderCommand(&blAdressCMD) == 0) && (blAdressCMD.RM == 0) )
 			{ // wir sind die adresse los geworden
-			    char* memdat = MemByteArray.data();
+                char* memdat = MemByteArray.data();
 			    short memlen = MemByteArray.count();
 			    struct bl_cmd blwriteMemCMD = {cmdcode: blwriteCmd, par: memdat, plen: memlen, cmdlen: 0, cmddata: 0, RM: 0};
 			    if ( (I2CBootloaderCommand(&blwriteMemCMD) == 0) && (blwriteMemCMD.RM == 0) )
@@ -1584,7 +1583,7 @@ const char* cWM3000uServer::mControlerMemUpdate(bl_cmdcode blwriteCmd,char* s)
     else
 	Answer = ACKString;
     
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -1604,7 +1603,7 @@ const char* cWM3000uServer::mControlerStartBootloader(char* s)
 {
      if (pCmdInterpreter->m_pParser->GetChar(&s) ) { // schau mal nach ob noch was kommt
 	Answer = NACKString; // not acknowledge 	    
-	return Answer.latin1();
+    return Answer.toLatin1();
     }
      
      char PAR[1];
@@ -1614,7 +1613,7 @@ const char* cWM3000uServer::mControlerStartBootloader(char* s)
      else
 	 Answer = ERREXECString;
     
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -1622,7 +1621,7 @@ const char* cWM3000uServer::mControlerStartProgram(char* s)
 {
     if (pCmdInterpreter->m_pParser->GetChar(&s) ) { // schau mal nach ob noch was kommt
 	Answer = NACKString; // not acknowledge 	    
-	return Answer.latin1();
+    return Answer.toLatin1();
     }
  
     char PAR[1];
@@ -1632,7 +1631,7 @@ const char* cWM3000uServer::mControlerStartProgram(char* s)
     else
 	Answer = ACKString;
     
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -1645,7 +1644,7 @@ const char* cWM3000uServer::mGetText(hw_cmdcode hwcmd) {
 	if (I2CReadOutput(answ,rlen) == rlen) {
 	    answ[rlen-1] = 0;
             Answer = (char*)answ;
-	    return Answer.latin1();
+        return Answer.toLatin1();
 	}
     }
     return("Unknown");    
@@ -1663,13 +1662,13 @@ const char* cWM3000uServer::mSetPCBVersion(char* s) {
     if ( (slen<1) || (slen>24) ) Answer = NACKString;
     else
     {
-	struct hw_cmd CMD = { cmdcode: hwSetPCBVersion, device: 0, par: spar.latin1(), plen: slen,cmdlen: 0,cmddata: 0, RM:0 };
+    struct hw_cmd CMD = { cmdcode: hwSetPCBVersion, device: 0, par: spar.toLatin1(), plen: slen,cmdlen: 0,cmddata: 0, RM:0 };
 	if ( (I2CWriteCommand(&CMD) == 0) && (CMD.RM == 0) )
 	    Answer = ACKString;
 	else
 	    Answer = ERREXECString;
     }
-    return Answer.latin1();    
+    return Answer.toLatin1();
 }
 
 
@@ -1690,18 +1689,18 @@ const char* cWM3000uServer::mGetLCAVersion() {
 
 const char* cWM3000uServer::mGetI2CMasterAdress() {
     Answer = QString::number(I2CMasterAdr);
-    return Answer.latin1();      
+    return Answer.toLatin1();
 }
 
 
 const char* cWM3000uServer::mGetI2CSlaveAdress() {
     Answer = QString::number(I2CSlaveAdr);
-    return Answer.latin1();          
+    return Answer.toLatin1();
 }
 
 
 const char* cWM3000uServer::mGetI2CDeviceNode() {
-    return sI2CDevNode.latin1();      
+    return sI2CDevNode.toLatin1();
 }
  
 
@@ -1715,13 +1714,13 @@ const char* cWM3000uServer::mSetDebugLevel(char* s) {
 	Answer = ACKString; // acknowledge
     }
     else Answer = ERRVALString; // fehler wert
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
 const char* cWM3000uServer::mGetDebugLevel() {
     Answer = QString::number(DebugLevel);
-    return Answer.latin1();          
+    return Answer.toLatin1();
 }
  
 
@@ -1731,18 +1730,18 @@ const char* cWM3000uServer::mGetDeviceVersion() {
     for (int i = 0; i < 4; i++) 
 	vs[i] = mGetText(command[i]);
     Answer = QString ("DEVICE: %1;PCB: %2;LCA: %3;CTRL: %4").arg(vs[0]).arg(vs[1]).arg(vs[2]).arg(vs[3]);
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
  
 
 const char* cWM3000uServer::mGetServerVersion() {
-    return sSoftwareVersion.latin1();
+    return sSoftwareVersion.toLatin1();
 }
 
 
 const char *cWM3000uServer::mGetAdjustmentVersion()
 {
-    return m_sJustDataVersion.latin1();
+    return m_sJustDataVersion.toLatin1();
 }
 
 
@@ -1752,7 +1751,7 @@ bool cWM3000uServer::getAdjustment()
 
     for (QStringList::iterator it=MeasChannelList.begin(); it !=MeasChannelList.end(); it++)
     {
-        QStringList* sl=ChannelRangeListMap.find(*it).data();
+        QStringList* sl=ChannelRangeListMap.find(*it).value();
         QStringList::Iterator it3;
         for ( it3 = sl->begin(); it3 != sl->end(); ++it3 )
         {
@@ -1778,14 +1777,14 @@ const char* cWM3000uServer::mGetAdjustmentStatus()
     
     Answer = QString("%1").arg(adj);
     
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
 const char* cWM3000uServer::mGetDeviceStatus() {
     if (Test4HWPresent()) Answer = "avail";
     else Answer = "not avail";
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -1798,19 +1797,19 @@ const char* cWM3000uServer::mGetChannelStatus() {
     struct hw_cmd CMD = { cmdcode: hwGetStatus, device: dnr, par: PAR, plen: 0,cmdlen: 0,cmddata: 0, RM:0 };
     if  ( !( (I2CWriteCommand(&CMD) == 2) && (CMD.RM == 0) &&  (I2CReadOutput(answ,2) == 2)) ) {
 	Answer = ERREXECString;
-	return Answer.latin1();
+    return Answer.toLatin1();
     }
     
     Answer = QString::number(answ[0]);
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
 const char* cWM3000uServer::mOutCValueCatalog() {
     Answer="";
-    QTextOStream* os=new QTextOStream(&Answer);
+    QTextStream* os=new QTextStream(&Answer);
     for (QStringList::iterator it = CValueList.begin(); it != CValueList.end(); ++it) *os << *it << ";";
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -1845,7 +1844,7 @@ const char* cWM3000uServer::mGetCValueCCoefficientName() {
 	}
     }
 */
-	return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -1879,7 +1878,7 @@ const char* cWM3000uServer::mGetCValueCNodeName() {
 	}
     }
 */    
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -1899,9 +1898,9 @@ bool cWM3000uServer::EEPromAccessEnable()
 bool cWM3000uServer::isAtmelRunning()
 {
     int fd;
-    if ( (fd = open(m_sFPGADeviceNode.latin1(),O_RDWR)) < 0 )
+    if ( (fd = open(m_sFPGADeviceNode.toLatin1(),O_RDWR)) < 0 )
     {
-        if (DEBUG1)  syslog(LOG_ERR,"error opening fpga device: %s\n",m_sFPGADeviceNode.latin1());
+        if (DEBUG1)  syslog(LOG_ERR,"error opening fpga device: %s\n",m_sFPGADeviceNode.toLatin1());
         return false;
     }
 
@@ -1911,7 +1910,7 @@ bool cWM3000uServer::isAtmelRunning()
         int r;
         if ( (r = lseek(fd,0xffc,0)) < 0 )
         {
-            if  (DEBUG1)  syslog(LOG_ERR,"error positioning fpga device: %s\n",m_sFPGADeviceNode.latin1());
+            if  (DEBUG1)  syslog(LOG_ERR,"error positioning fpga device: %s\n",m_sFPGADeviceNode.toLatin1());
             close(fd);
             return false;
         }
@@ -1922,7 +1921,7 @@ bool cWM3000uServer::isAtmelRunning()
             if (DEBUG1)  syslog(LOG_ERR,"reading fpga adr 0xffc =  %d\n", pcbTestReg);
             if (r < 0 )
             {
-                if (DEBUG1)  syslog(LOG_ERR,"error reading fpga device: %s\n",m_sFPGADeviceNode.latin1());
+                if (DEBUG1)  syslog(LOG_ERR,"error reading fpga device: %s\n",m_sFPGADeviceNode.toLatin1());
                 return false;
             }
             else
@@ -1960,9 +1959,9 @@ bool cWM3000uServer::programAtmelFlash()
 
     syslog(LOG_INFO,"Starting programming atmel flash\n");
 
-    if ( (fd = open(m_sFPGADeviceNode.latin1(),O_RDWR)) < 0 )
+    if ( (fd = open(m_sFPGADeviceNode.toLatin1(),O_RDWR)) < 0 )
     {
-        syslog(LOG_ERR,"error opening fpga device: %s\n",m_sFPGADeviceNode.latin1());
+        syslog(LOG_ERR,"error opening fpga device: %s\n",m_sFPGADeviceNode.toLatin1());
         return false;
     }
     else
@@ -1971,7 +1970,7 @@ bool cWM3000uServer::programAtmelFlash()
         int r;
         if ( (r = lseek(fd,0xffc,0)) < 0 )
         {
-            syslog(LOG_ERR,"error positioning fpga device: %s\n",m_sFPGADeviceNode.latin1());
+            syslog(LOG_ERR,"error positioning fpga device: %s\n",m_sFPGADeviceNode.toLatin1());
             syslog(LOG_ERR,"Programming atmel failed\n");
             close(fd);
             return false;
@@ -1981,7 +1980,7 @@ bool cWM3000uServer::programAtmelFlash()
         syslog(LOG_ERR,"reading fpga adr 0xffc =  %x\n", pcbTestReg);
         if (r < 0 )
         {
-            if (DEBUG1)  syslog(LOG_ERR,"error reading fpga device: %s\n",m_sFPGADeviceNode.latin1());
+            if (DEBUG1)  syslog(LOG_ERR,"error reading fpga device: %s\n",m_sFPGADeviceNode.toLatin1());
             syslog(LOG_ERR,"Programming atmel failed\n");
             return  false;
         }
@@ -1992,7 +1991,7 @@ bool cWM3000uServer::programAtmelFlash()
 
         if (r < 0 )
         {
-            syslog(LOG_ERR,"error writing fpga device: %s\n",m_sFPGADeviceNode.latin1());
+            syslog(LOG_ERR,"error writing fpga device: %s\n",m_sFPGADeviceNode.toLatin1());
             syslog(LOG_ERR,"Programming atmel failed\n");
             return false;
         }
@@ -2006,7 +2005,7 @@ bool cWM3000uServer::programAtmelFlash()
 
         if (r < 0 )
         {
-            syslog(LOG_ERR,"error writing fpga device: %s\n",m_sFPGADeviceNode.latin1());
+            syslog(LOG_ERR,"error writing fpga device: %s\n",m_sFPGADeviceNode.toLatin1());
             syslog(LOG_ERR,"Programming atmel failed\n");
             return false;
         }
@@ -2044,11 +2043,10 @@ bool cWM3000uServer::programAtmelFlash()
 
 void cWM3000uServer::AddChannelClient(QString& s) { // fügt einen client hinzu nach  open
     tChannelSockListMap::iterator it=ChannelSockListMap.find(s);
-    tSockList *sl=it.data(); //  socketliste
-    tSockList::iterator is=sl->find(ActSock); // hat der client schon geöffnet
-    if ( is == sl->end() ) {
-	if DEBUG3 syslog(LOG_INFO,"client %d opened channel %s",ActSock,s.latin1());
-	sl->append(ActSock); // nein -> tut er es jetzt
+    tSockList *sl=it.value(); //  socketliste
+    if ( !sl->contains(ActSock) ) { // hat der client schon geöffnet
+        if DEBUG3 syslog(LOG_INFO,"client %d opened channel %s",ActSock,qPrintable(s));
+        sl->append(ActSock); // nein -> tut er es jetzt
     }
     return;
 }
@@ -2056,18 +2054,18 @@ void cWM3000uServer::AddChannelClient(QString& s) { // fügt einen client hinzu 
 
 void cWM3000uServer::DelChannelClient(QString& s) { //  entfernt einen client nach close
     tChannelSockListMap::iterator it=ChannelSockListMap.find(s);
-    if DEBUG3 syslog(LOG_INFO,"client %d closed channel %s",ActSock,s.latin1());
-    it.data()->remove(ActSock);
+    if DEBUG3 syslog(LOG_INFO,"client %d closed channel %s",ActSock,qPrintable(s));
+    it.value()->removeOne(ActSock);
     return;
 }
 
 
 void cWM3000uServer::DelClient(int s) { // entfernt einen client
-    for ( cZHClient* client = clientlist.first(); client; client = clientlist.next() ) {
-	if ((client->sock) == s) {
-	    clientlist.remove(client);
-	    break;
-	}
+    for ( auto client : clientlist ) {
+        if ((client->sock) == s) {
+            clientlist.removeOne(client);
+            break;
+        }
     }
     ActSock=s; // damit DelChannelClient weiß um welchen socket es geht
     for (QStringList::iterator it=MeasChannelList.begin(); it !=MeasChannelList.end(); it++) DelChannelClient(*it);
@@ -2094,7 +2092,7 @@ bool ok;
 	    pCmdInterpreter->dedicatedList.pop_front();
 	    QString dedicatedPhaseCoefficient = pCmdInterpreter->dedicatedList.first();
 	    sRange* ranges=SearchRange(dedicatedChannel,dedicatedRange);
-	    char cc = dedicatedPhaseCoefficient[0].latin1();
+        char cc = dedicatedPhaseCoefficient[0].toLatin1();
 	    int ord = (dedicatedPhaseCoefficient.right(1)).toInt();
 	    switch (cc)
 	    {
@@ -2114,7 +2112,7 @@ bool ok;
     }
     else
 	Answer = ERRVALString; // error value       
-    return Answer.latin1();    
+    return Answer.toLatin1();
 }
 
 
@@ -2126,7 +2124,7 @@ const char* cWM3000uServer::mGetCValueCCoefficient()
     pCmdInterpreter->dedicatedList.pop_front();
     QString dedicatedCCoefficient = pCmdInterpreter->dedicatedList.first();
     sRange* ranges=SearchRange(dedicatedChannel,dedicatedRange);
-    char cc = dedicatedCCoefficient[0].latin1();
+    char cc = dedicatedCCoefficient[0].toLatin1();
     int ord = (dedicatedCCoefficient.right(1)).toInt();
     double coeff=0.0;
     bool ok = false; 	
@@ -2150,7 +2148,7 @@ const char* cWM3000uServer::mGetCValueCCoefficient()
     else
 	Answer = NACKString;	
 
-    return Answer.latin1();      
+    return Answer.toLatin1();
 }
 
 
@@ -2170,7 +2168,7 @@ bool ok1, ok2;
 	    pCmdInterpreter->dedicatedList.pop_front();
 	    QString dedicatedCNode = pCmdInterpreter->dedicatedList.first();
 	    sRange* ranges=SearchRange(dedicatedChannel,dedicatedRange);
-	    char cc = dedicatedCNode[0].latin1();
+        char cc = dedicatedCNode[0].toLatin1();
 	    int ord = (dedicatedCNode.right(1)).toInt();
 	    switch (cc)
 	    {
@@ -2190,7 +2188,7 @@ bool ok1, ok2;
     }
     else
 	Answer = ERRVALString; // error value       
-    return Answer.latin1();        
+    return Answer.toLatin1();
 }
 
 
@@ -2202,7 +2200,7 @@ const char* cWM3000uServer::mGetCValueCNode()
     pCmdInterpreter->dedicatedList.pop_front();
     QString dedicatedCCoefficient = pCmdInterpreter->dedicatedList.first();
     sRange* ranges=SearchRange(dedicatedChannel,dedicatedRange);
-    char cc = dedicatedCCoefficient[0].latin1();
+    char cc = dedicatedCCoefficient[0].toLatin1();
     int ord = (dedicatedCCoefficient.right(1)).toInt();
     cJustNode* jd=NULL;
     switch (cc)
@@ -2222,7 +2220,7 @@ const char* cWM3000uServer::mGetCValueCNode()
     else
 	Answer =NACKString;
 
-    return Answer.latin1();          
+    return Answer.toLatin1();
 }
 
 
@@ -2231,11 +2229,11 @@ const char* cWM3000uServer::mCmpCCoefficient(char*)
    QString dedicatedChannel = pCmdInterpreter->dedicatedList.first();
    
    tChannelListMap::Iterator it=ChannelRangeListMap.find(dedicatedChannel);
-   QStringList* rl=it.data();
+   QStringList* rl=it.value();
    int nRng=rl->count(); // wir haben die anzahl der bereiche zu diesem kanal
     
     tChannelRangeArrayMap::Iterator it2=ChannelRangeArrayMap.find(dedicatedChannel);
-    sRange* ranges=it2.data();
+    sRange* ranges=it2.value();
  
     pCmdInterpreter->dedicatedList.pop_front();
     QString dedicatedCValue = pCmdInterpreter->dedicatedList.first();
@@ -2250,7 +2248,7 @@ const char* cWM3000uServer::mCmpCCoefficient(char*)
 	    ranges->pJustData->m_pOffsetCorrection->cmpCoefficients();
     }
     Answer = ACKString; // acknowledge
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -2270,7 +2268,7 @@ const char* cWM3000uServer::mSetStatus(char* s) {
 	else Answer = ERRAUTString; // nicht autorisiert
     }
     else Answer = ERRVALString; // error value    
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
  
 
@@ -2281,7 +2279,7 @@ const char* cWM3000uServer::mGetStatus() {
     sRange* ranges=SearchRange(dedicatedChannel,dedicatedRange);
     int st=ranges->pJustData->getStatus();
     Answer = QString::number(st);
-    return Answer.latin1();      
+    return Answer.toLatin1();
 }
 
 
@@ -2301,7 +2299,7 @@ const char* cWM3000uServer::mSetGainStatus(char* s) {
     else Answer = ERRAUTString; // nicht autorisiert
     }
     else Answer = ERRVALString; // error value
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -2312,7 +2310,7 @@ const char* cWM3000uServer::mGetGainStatus() {
     sRange* ranges=SearchRange(dedicatedChannel,dedicatedRange);
     int st=ranges->pJustData->m_pGainCorrection->getStatus();
     Answer = QString::number(st);
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -2333,7 +2331,7 @@ const char *cWM3000uServer::mSetPhaseStatus(char* s)
     else Answer = ERRAUTString; // nicht autorisiert
     }
     else Answer = ERRVALString; // error value
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -2345,7 +2343,7 @@ const char *cWM3000uServer::mGetPhaseStatus()
     sRange* ranges=SearchRange(dedicatedChannel,dedicatedRange);
     int st=ranges->pJustData->m_pPhaseCorrection->getStatus();
     Answer = QString::number(st);
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -2366,7 +2364,7 @@ const char *cWM3000uServer::mSetOffsetStatus(char* s)
     else Answer = ERRAUTString; // nicht autorisiert
     }
     else Answer = ERRVALString; // error value
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -2378,7 +2376,7 @@ const char *cWM3000uServer::mGetOffsetStatus()
     sRange* ranges=SearchRange(dedicatedChannel,dedicatedRange);
     int st=ranges->pJustData->m_pOffsetCorrection->getStatus();
     Answer = QString::number(st);
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -2486,7 +2484,7 @@ const char* cWM3000uServer::mGetCValue(char* s) // abfrage des korrekturwertes (
         Answer = QString::number(rangeSense->pJustData->m_pOffsetCorrection->getCorrection(1.0)); // parameter dummy
     }
 
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -2499,7 +2497,7 @@ const char* cWM3000uServer::mGetRejection() {
     QString dedicatedRange = pCmdInterpreter->dedicatedList.first();
     sRange* ranges=SearchRange(dedicatedChannel,dedicatedRange);
     Answer = ranges->RRejection;
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -2509,18 +2507,18 @@ const char* cWM3000uServer::mGetRValue() {
     QString dedicatedRange = pCmdInterpreter->dedicatedList.first();
     sRange* ranges=SearchRange(dedicatedChannel,dedicatedRange);
     Answer = ranges->RValue;
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
 const char* cWM3000uServer::mOutRangeCatalog() {
     QString dedicatedChannel = pCmdInterpreter->dedicatedList.first();
     Answer="";
-    QTextOStream* os=new QTextOStream(&Answer);
+    QTextStream* os=new QTextStream(&Answer);
     tChannelListMap::Iterator it=ChannelRangeListMap.find(dedicatedChannel);
-    QStringList* sl=it.data();
+    QStringList* sl=it.value();
     for (QStringList::Iterator it = sl->begin(); it != sl->end(); ++it) *os << *it << ";" ;
-    return Answer.latin1(); 
+    return Answer.toLatin1();
 }
 
 
@@ -2534,24 +2532,24 @@ const char* cWM3000uServer::mGetRange() {
     
     if ( !( ( (rlen = I2CWriteCommand(&CMD)) == 2) && (CMD.RM == 0) && (I2CReadOutput(answ,rlen) == rlen)) ) {
 	Answer = ERREXECString; // error execution
-	return Answer.latin1();
+    return Answer.toLatin1();
     }
     
     int range = answ[0]; // bereich 
     
     tChannelListMap::Iterator it=ChannelRangeListMap.find(dedicatedChannel);
-    QStringList* rl=it.data();
+    QStringList* rl=it.value();
     int nRng=rl->count();
     
     tChannelRangeArrayMap::Iterator it2=ChannelRangeArrayMap.find(dedicatedChannel);
-    sRange* ranges=it2.data();
+    sRange* ranges=it2.value();
     for (int i = 0;  i < nRng; i++, ranges++) {
 	if ( ranges->RSelCode == range ) {
 	    Answer = ranges->RName;
 	    break;
 	}
     }
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -2560,20 +2558,20 @@ const char* cWM3000uServer::mSetRange(char* s) {
     
     QString dedicatedChannel = pCmdInterpreter->dedicatedList.first();
     tChannelSockListMap::iterator it=ChannelSockListMap.find(dedicatedChannel);
-    tSockList *sl=it.data(); //  socketliste
+    tSockList *sl=it.value(); //  socketliste
     int so=sl->first();
     if ( so != ActSock ) {
 	Answer = ERRAUTString;
-	return Answer.latin1();;
+    return Answer.toLatin1();;
     }
     QString rng = pCmdInterpreter->m_pParser->GetKeyword(&s); // holt den parameter aus dem kommando
     
     tChannelListMap::Iterator it2=ChannelRangeListMap.find(dedicatedChannel);
-    QStringList* rl=it2.data();
+    QStringList* rl=it2.value();
     int nRng=rl->count();
     
     tChannelRangeArrayMap::Iterator it3=ChannelRangeArrayMap.find(dedicatedChannel);
-    sRange* ranges=it3.data();
+    sRange* ranges=it3.value();
     sRange* sr = NULL;
     for (int i = 0;  i < nRng; i++, ranges++) {
 	if ( rng == ranges->RName ) {
@@ -2583,7 +2581,7 @@ const char* cWM3000uServer::mSetRange(char* s) {
     }
     if ( !sr ||  !((sr->RSpec==rngPhys) || (sr->RSpec==rngLog))  ) { // war nicht erlaubt
 	Answer = NACKString; // bereich gibt es nicht, bzw. ist kein phys. bzw. log. bereich
-	return Answer.latin1();
+    return Answer.toLatin1();
     }
     dnr = (dedicatedChannel == "ch0") ? 1 : 2;
     
@@ -2595,7 +2593,7 @@ const char* cWM3000uServer::mSetRange(char* s) {
     else
 	Answer = ACKString;
   
-    return Answer.latin1();
+    return Answer.toLatin1();
 }    
 
 
@@ -2607,7 +2605,7 @@ const char* cWM3000uServer::mGetProtection() {
  
     if ( !( ( (rlen = I2CWriteCommand(&CMD)) == 2) && (CMD.RM == 0) && (I2CReadOutput(answ,rlen) == rlen)) ) {
 	Answer = ERREXECString; // error execution
-	return Answer.latin1();
+    return Answer.toLatin1();
     }   
     else
     {	
@@ -2615,7 +2613,7 @@ const char* cWM3000uServer::mGetProtection() {
 	prot = answ[0];
 	Answer = QString("%1").arg(prot & 1);
     }
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -2634,7 +2632,7 @@ const char* cWM3000uServer::mSetProtection(char* s) {
 	    Answer = ERREXECString;
     }
     else Answer = ERRVALString;
-    return Answer.latin1();        
+    return Answer.toLatin1();
 }
 
 
@@ -2648,7 +2646,7 @@ const char* cWM3000uServer::mChannelClose(char* s) {
 	DelChannelClient(dedicatedChannel);
 	Answer = ACKString; // acknowledge 	    
     }
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -2662,7 +2660,7 @@ const char* cWM3000uServer::mChannelOpen(char* s) {
 	AddChannelClient(dedicatedChannel);
 	Answer = ACKString; // acknowledge 	    
     }
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
@@ -2677,34 +2675,34 @@ const char* cWM3000uServer::mSetCalculateModel() {
     QString dedicatedChannel = pCmdInterpreter->dedicatedList.first();
     
     tChannelListMap::Iterator it = ChannelRangeListMap.find(dedicatedChannel);
-    QStringList* sl = it.data();
+    QStringList* sl = it.value();
     CalculateCNameRName->SetNodeNameList(sl);
     
     it = ChannelCValueListMap.find(dedicatedChannel);
-    sl = it.data();
+    sl = it.value();
     CalculateCNameCValue2->SetNodeNameList(sl);
     
     CalculateCNameRNameCValue->SetNodeNameList(sl);
     CalculateComputeCValue->SetNodeNameList(sl);
     
     it = ChannelCCoeffientListMap.find(dedicatedChannel);
-    sl = it.data();
+    sl = it.value();
     CalculateCNameRNameCCoefficient->SetNodeNameList(sl);
         
     it = ChannelCNodeListMap.find(dedicatedChannel);
-    sl = it.data();
+    sl = it.value();
     CalculateCNameRNameCNode->SetNodeNameList(sl);
     
     Answer = "Dummy";
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 
 const char* cWM3000uServer::mOutChannelCatalog() {
     Answer="";
-    QTextOStream* os=new QTextOStream(&Answer);
+    QTextStream* os=new QTextStream(&Answer);
     for (QStringList::iterator it = MeasChannelList.begin(); it != MeasChannelList.end(); ++it) *os << *it << ";";
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 
 int cWM3000uServer::Execute() { // server ausführen
@@ -2714,7 +2712,7 @@ int cWM3000uServer::Execute() { // server ausführen
 	return(1);
     }
     struct servent* se;
-    if ( (se=getservbyname( sServerName.latin1(),"tcp")) == NULL ) {  // holt port nr aus /etc/services
+    if ( (se=getservbyname( sServerName.toLatin1(),"tcp")) == NULL ) {  // holt port nr aus /etc/services
 	if DEBUG1 syslog(LOG_ERR,"internet network services not found\n");
 	return(1);
     }
@@ -2740,7 +2738,7 @@ int cWM3000uServer::Execute() { // server ausführen
 	
 	fdmax=sock; // start socket
 	FD_SET(sock,&rfds); 
-	if ( ! clientlist.isEmpty()) for ( cZHClient* client=clientlist.first(); client; client=clientlist.next() ) {
+    for ( auto client : clientlist ) {
 	    fd=client->sock;
 	    FD_SET(fd,&rfds); 
 	    if ( client->OutpAvail() ) 
@@ -2759,7 +2757,7 @@ int cWM3000uServer::Execute() { // server ausführen
 	    }
 	}
 		
-	if ( ! clientlist.isEmpty()) for ( cZHClient* client=clientlist.first(); client; client=clientlist.next() ) {
+    for ( auto client : clientlist ) {
 	    fd=client->sock;
 	    if (FD_ISSET(fd,&rfds) ) { // sind daten für den client da, oder hat er sich abgemeldet ?
 		if ( (nBytes=recv(fd,InputBuffer,InpBufSize,0)) > 0  ) { // daten sind da
@@ -2801,13 +2799,13 @@ int cWM3000uServer::Execute() { // server ausführen
 	    }
 	}
 	
-	if ( ! clientlist.isEmpty()) for ( cZHClient* client=clientlist.first(); client; client=clientlist.next() ) {
+    for ( auto client : clientlist ) {
 	    fd=client->sock;
 	    if (FD_ISSET(fd,&wfds) ) { // soll und kann was an den client gesendet werden ?
 		QString out = client->GetOutput();
 		out+="\n";
 		// char* out=client->GetOutput();
-		send(fd,out.latin1(),out.length(),0);
+        send(fd,out.toLatin1(),out.length(),0);
 		client->SetOutput(""); // kein output mehr da .
 	    } 
 	}
@@ -2853,7 +2851,7 @@ const char* cWM3000uServer::SCPICmd( SCPICmdType cmd, char* s) {
     case   SetPCBVersion:		return mSetPCBVersion(s);
     }
     Answer = "ProgrammierFehler"; // hier sollten wir nie hinkommen
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
  
 
@@ -2900,6 +2898,6 @@ const char* cWM3000uServer::SCPIQuery( SCPICmdType cmd, char* s) {
     case 		GetEEPromChksum:	return mGetEEPrChksum();
     }
     Answer = "ProgrammierFehler"; // hier sollten wir nie hinkommen
-    return Answer.latin1();
+    return Answer.toLatin1();
 }
 

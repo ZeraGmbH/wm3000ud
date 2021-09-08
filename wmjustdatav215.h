@@ -2,7 +2,6 @@
 #define WMJUSTDATAV215_H
 
 #include <qdatastream.h>
-#include <q3textstream.h>
 #include "wmjustdatabase.h"
 
 

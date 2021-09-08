@@ -1,7 +1,6 @@
 // implemention cWMJustData
 
 #include <qdatastream.h>
-#include <q3textstream.h>
 #include "zeraglobal.h"
 #include "wmjustdata.h"
 
