@@ -42,10 +42,15 @@
 #define DEBUG2 (DebugLevel & 2) // alle i2c aktivitäten loggen
 #define DEBUG3 (DebugLevel & 4) // alle client an-,abmeldungen
 
+#define ch0_n 10 /* 10 bereiche für kanal 0 */
+#define ch1_n 20 /* 20 bereiche für kanal 1 */
 
+#define ch0_nV212 14 /* 14 bereiche für kanal 0  ab v2.12*/
+#define ch1_nV212 18 /* 18 bereiche für kanal 1  ab v2.12*/
 
-//#define ch0_n 14 /* anzahl bereiche für kanal 0 */
-//#define ch1_n 18 /* anzahl bereiche für kanal 1 */
+#define ch0_nV216 18 /* 18 bereiche für kanal 0  ab v2.16*/
+#define ch1_nV216 18 /* 18 bereiche für kanal 1  ab v2.16*/
+
 
 enum hw_cmdcode {	hwGetSerialNr = 0x0001,	hwGetDevName = 0x0002,
 			hwGetCtrlVersion = 0x0003,	hwGetLCAVersion = 0x0004,
@@ -144,6 +149,8 @@ public:
     static QStringList MeasChannelList; // liste aller messkanäle
     
 private:
+    bool isAllowedSamples(int n);
+
     // die routinen für das mmemory modell
     
     const char* mFile2Justdata( char*);	     	     

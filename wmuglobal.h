@@ -49,7 +49,7 @@
 // V2.14 01.10.2020
 // bugfix beim initialisieren der justagedaten phasenkorrektur ist default 0.0 und nicht 1.0 !!!
 // V2.15 16.10.2020 wir stellen wieder um auf justage der phasenwinkel für die ad-wandler
-
+// V2.16 07.07.2021 es kommen neue sampleraten hinzu. es müssen in folge korrekturkurven für gain hinzugefügt werden.
 
 // allgemein zu justagedaten .......
 // im allerersten ansatz wurden für die wm3000 ein korrekturwert für gain und offset sowie ein polygon
@@ -96,7 +96,7 @@
 #define CheckSumOffset 56
 #define LeiterkartenName "wm3000u"
 #define ServerBasisName "wm3000ud"
-#define ServerVersion "V2.15"
+#define ServerVersion "V2.16"
 #define InpBufSize 4096
 #define atmelFlashfilePath "/opt/zera/bin/atmel.hex"
 #define atmelResetBit 16
