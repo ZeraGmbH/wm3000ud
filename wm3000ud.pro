@@ -51,8 +51,8 @@ target.path = /usr/bin
 INSTALLS += target
 
 
+# avoid warnings/error on modern environments
+QMAKE_CXXFLAGS += -Wno-deprecated-copy -Wno-narrowing
 
 
-
-#The following line was inserted by qt3to4
 QT += xml  qt3support 
