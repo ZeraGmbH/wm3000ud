@@ -14,7 +14,7 @@ jobs:
       image: schnitzeltony/fedora-qt5:32
     steps:
       - name: Download artifact
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v6
         with:
           repo: ZeraGmbH/zera-metaproject
           name: buildroot
