@@ -48,7 +48,7 @@
 #define ch0_nV212 14 /* 14 bereiche für kanal 0  ab v2.12*/
 #define ch1_nV212 18 /* 18 bereiche für kanal 1  ab v2.12*/
 
-#define ch0_nV216 18 /* 18 bereiche für kanal 0  ab v2.16*/
+#define ch0_nV216 23 /* 18 bereiche für kanal 0  ab v2.16*/
 #define ch1_nV216 18 /* 18 bereiche für kanal 1  ab v2.16*/
 
 

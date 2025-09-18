@@ -41,8 +41,8 @@ extern cNode* InitCmdTree();
 
 
 static sRange RangeCh0[ch0_n]=
-                  {{"ADW80"  ,"ADW80"   ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW256" ,"ADW256"  ,"500000"  ,255,  Volt , rngVirt, NULL},
+                  {{"ADW80"  ,"ADW80"   ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
+                   {"ADW256" ,"ADW256"  ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
 
                    {"480V"   ,"480.0"   ,"4730418"  ,0 ,  Volt, rngPhys, NULL},
                    { "240V"  ,"240.0"   ,"4730418"  ,1 , Volt, rngPhys,NULL},
@@ -55,8 +55,8 @@ static sRange RangeCh0[ch0_n]=
 
 
 static sRange RangeCh1[ch1_n]=
-                  {{"ADW80"  ,"ADW80"  ,"500000"  ,255,    Volt, rngVirt, NULL},
-                   {"ADW256"  ,"ADW256"  ,"500000"  ,255,    Volt, rngVirt,NULL},
+                  {{"ADW80"  ,"ADW80"  ,"500000"  ,static_cast<char>(255),    Volt, rngVirt, NULL},
+                   {"ADW256"  ,"ADW256"  ,"500000"  ,static_cast<char>(255),    Volt, rngVirt,NULL},
 
                    {"480V"   ,"480.0" ,"4730418"  ,0 ,   Volt, rngPhys,NULL},
                    { "240V"   ,"240.0" ,"4730418"  ,1 ,  Volt, rngPhys,NULL},
@@ -80,13 +80,13 @@ static sRange RangeCh1[ch1_n]=
 
 
 static sRange RangeCh0V212[ch0_nV212]=
-                  {{"ADW80.16"  ,"ADW80.16"   ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW80.50"  ,"ADW80.50"   ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW80.60"  ,"ADW80.60"   ,"500000"  ,255,  Volt , rngVirt, NULL},
+                  {{"ADW80.16"  ,"ADW80.16"   ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
+                   {"ADW80.50"  ,"ADW80.50"   ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
+                   {"ADW80.60"  ,"ADW80.60"   ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
 
-                   {"ADW256.16"  ,"ADW256.16" ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW256.50"  ,"ADW256.50" ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW256.60"  ,"ADW256.60" ,"500000"  ,255,  Volt , rngVirt, NULL},
+                   {"ADW256.16"  ,"ADW256.16" ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
+                   {"ADW256.50"  ,"ADW256.50" ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
+                   {"ADW256.60"  ,"ADW256.60" ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
 
                    {"480V"   ,"480.0"  ,"4730418"  ,0 ,  Volt, rngPhys, NULL},
                    { "240V"   ,"240.0"  ,"4730418"  ,1 , Volt, rngPhys,NULL},
@@ -121,19 +121,25 @@ static sRange RangeCh1V212[ch1_nV212]=
 
 
 static sRange RangeCh0V216[ch0_nV216]=
-                  {{"ADW80.16"  ,"ADW80.16"   ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW80.50"  ,"ADW80.50"   ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW80.60"  ,"ADW80.60"   ,"500000"  ,255,  Volt , rngVirt, NULL},
+                  {{"ADW80.16"  ,"ADW80.16"   ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
+                   {"ADW80.50"  ,"ADW80.50"   ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
+                   {"ADW80.60"  ,"ADW80.60"   ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
 
-                   {"ADW256.16"  ,"ADW256.16" ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW256.50"  ,"ADW256.50" ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW256.60"  ,"ADW256.60" ,"500000"  ,255,  Volt , rngVirt, NULL},
+                   {"ADW256.16"  ,"ADW256.16" ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
+                   {"ADW256.50"  ,"ADW256.50" ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
+                   {"ADW256.60"  ,"ADW256.60" ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
 
-                   {"ADW96.50"  ,"ADW96.50"   ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW96.60"  ,"ADW96.60"   ,"500000"  ,255,  Volt , rngVirt, NULL},
+                   {"ADW96.16"  ,"ADW96.16"   ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
+                   {"ADW96.50"  ,"ADW96.50"   ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
+                   {"ADW96.60"  ,"ADW96.60"   ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
 
-                   {"ADW288.50"  ,"ADW288.50"   ,"500000"  ,255,  Volt , rngVirt, NULL},
-                   {"ADW240.60"  ,"ADW240.60"   ,"500000"  ,255,  Volt , rngVirt, NULL},
+                   {"ADW288.16"  ,"ADW288.16"   ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
+                   {"ADW288.50"  ,"ADW288.50"   ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
+                   {"ADW288.60"  ,"ADW288.60"   ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
+
+                   {"ADW240.16"  ,"ADW240.16"   ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
+                   {"ADW240.50"  ,"ADW240.50"   ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
+                   {"ADW240.60"  ,"ADW240.60"   ,"500000"  ,static_cast<char>(255),  Volt , rngVirt, NULL},
 
                    {"480V"   ,"480.0"  ,"4730418"  ,0 ,  Volt, rngPhys, NULL},
                    { "240V"   ,"240.0"  ,"4730418"  ,1 , Volt, rngPhys,NULL},
